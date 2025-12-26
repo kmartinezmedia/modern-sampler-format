@@ -7,6 +7,16 @@
     "apps/*",
     "packages/*"
   ],
+  "author": "Katherine Martinez",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kmartinezmedia/modern-sampler-format"
+  },
+  "homepage": "https://github.com/kmartinezmedia/modern-sampler-format",
+  "bugs": {
+    "url": "https://github.com/kmartinezmedia/modern-sampler-format/issues"
+  },
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",

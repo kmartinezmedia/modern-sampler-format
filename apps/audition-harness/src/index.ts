@@ -13,6 +13,7 @@
  */
 
 import type { MSFInstrument } from "@msf/core";
+import { MSFRuntime, renderToWAV, calculateMetrics } from "@msf/runtime";
 
 /**
  * MIDI Test Clip
@@ -79,32 +80,86 @@ export async function audition(
   options: AuditionOptions = {}
 ): Promise<AuditionResult[]> {
   const results: AuditionResult[] = [];
+  const sampleRate = options.sampleRate || 44100;
+  const outputDir = options.outputDir || "./output";
 
-  // TODO: Implement MSF runtime
-  // - Load MSF instrument
-  // - Process MIDI events
-  // - Render audio samples
-  // - Write WAV files
-  // - Calculate metrics
+  // Ensure output directory exists
+  try {
+    if (typeof Bun !== "undefined") {
+      const { $ } = await import("bun");
+      await $`mkdir -p ${outputDir}`.quiet();
+    }
+  } catch {
+    // Directory might already exist
+  }
 
   for (const clip of clips) {
-    // Placeholder: would render audio here
-    void instrument; // Will be used when implementing rendering
+    // Create runtime instance
+    const runtime = new MSFRuntime(instrument, sampleRate);
+
+    // Process MIDI events
+    const sortedEvents = [...clip.midi].sort((a, b) => a.time - b.time);
+    let currentTime = 0;
+    const audioBuffer: Float32Array[] = [];
+
+    for (const event of sortedEvents) {
+      // Render audio up to this event
+      const framesUntilEvent = Math.floor(
+        (event.time - currentTime) * sampleRate
+      );
+      if (framesUntilEvent > 0) {
+        const chunk = runtime.render(framesUntilEvent);
+        audioBuffer.push(chunk);
+      }
+
+      // Process event
+      if (event.type === "noteOn" && event.data.note !== undefined) {
+        runtime.noteOn(
+          event.data.note,
+          event.data.velocity || 100,
+          event.time
+        );
+        runtime.processRules("noteOn", event.data.note, event.data.velocity || 100);
+      } else if (event.type === "noteOff" && event.data.note !== undefined) {
+        runtime.noteOff(event.data.note, event.time);
+        runtime.processRules("noteOff", event.data.note, 0);
+      }
+
+      currentTime = event.time;
+    }
+
+    // Render remaining audio
+    const remainingFrames = Math.floor(
+      (clip.duration - currentTime) * sampleRate
+    );
+    if (remainingFrames > 0) {
+      const chunk = runtime.render(remainingFrames);
+      audioBuffer.push(chunk);
+    }
+
+    // Combine audio buffers
+    const totalFrames = audioBuffer.reduce((sum, buf) => sum + buf.length / 2, 0);
+    const combinedBuffer = new Float32Array(totalFrames * 2);
+    let offset = 0;
+    for (const buf of audioBuffer) {
+      combinedBuffer.set(buf, offset);
+      offset += buf.length;
+    }
+
+    // Write WAV file
+    const outputPath = `${outputDir}/${clip.name}.wav`;
+    if (outputPath) {
+      await renderToWAV(runtime, clip.duration, sampleRate, outputPath);
+    }
+
     const result: AuditionResult = {
       clipName: clip.name,
-      outputPath: `${options.outputDir || "./output"}/${clip.name}.wav`,
+      outputPath,
     };
 
+    // Calculate metrics if requested
     if (options.generateMetrics) {
-      // Audio metrics calculation would require:
-      // - Audio processing library (e.g., audio-buffer-utils, loudness)
-      // - LUFS calculation using ITU-R BS.1770 algorithm
-      // - Peak level detection from audio samples
-      // For now, return placeholder values
-      result.metrics = {
-        loudness: -23.0, // Placeholder: typical LUFS for normalized audio
-        peak: -3.0, // Placeholder: typical peak dB for mastered audio
-      };
+      result.metrics = calculateMetrics(combinedBuffer);
     }
 
     results.push(result);
@@ -174,9 +229,15 @@ if (import.meta.main) {
   for (let i = 1; i < args.length; i++) {
     const arg = args[i];
     if (arg === "--output-dir" && args[i + 1]) {
-      options.outputDir = args[++i];
+      const dir = args[++i];
+      if (dir) {
+        options.outputDir = dir;
+      }
     } else if (arg === "--sample-rate" && args[i + 1]) {
-      options.sampleRate = Number.parseInt(args[++i], 10);
+      const rate = args[++i];
+      if (rate) {
+        options.sampleRate = Number.parseInt(rate, 10);
+      }
     } else if (arg === "--metrics") {
       options.generateMetrics = true;
     } else if (arg === "--compare") {
@@ -185,6 +246,11 @@ if (import.meta.main) {
   }
 
   // Load MSF instrument from file
+  if (!msfFile) {
+    console.error("Error: MSF file path is required");
+    process.exit(1);
+  }
+
   try {
     const msfContent = await Bun.file(msfFile).json();
     const instrument = msfContent as MSFInstrument;

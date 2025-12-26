@@ -20,19 +20,22 @@ MSF succeeds only if it is:
 
 ## Monorepo Structure
 
-This is a monorepo managed with Bun workspaces:
+This is a monorepo managed with Bun workspaces and Turborepo:
 
 ```
 modern-sampler-format/
 ├── apps/
 │   ├── refinement-ui/      # Next.js UI for structured refinement
-│   └── audition-harness/   # Simple runtime for auditioning MSF
+│   ├── audition-harness/   # Simple runtime for auditioning MSF
+│   └── docs/               # Documentation site (Next.js)
 ├── packages/
 │   ├── msf-core/           # Core MSF format definitions
 │   ├── msf-compiler/       # IIS → MSF deterministic compiler
 │   ├── msf-validator/      # IIS validation & repair
+│   ├── msf-runtime/        # MSF playback engine
 │   ├── inventory/          # Inventory ingestion system
 │   └── intent-generator/   # AI-assisted intent generation
+├── docs/                   # Documentation markdown files
 └── package.json
 ```
 
@@ -104,8 +107,29 @@ MSF is the stable center of the system. All workflows converge on producing high
 2. **Instrument Intent Generation** — AI-assisted typed intent spec
 3. **IIS Validation & Repair** — Hard boundary between intent and runtime
 4. **Deterministic Compiler** — IIS → MSF with full build reports
-5. **Audition Harness** — Minimal runtime for testing MSF
-6. **Refinement UI** — Controlled iteration on MSF instruments
+5. **MSF Runtime** — Playback engine for MSF instruments
+6. **Audition Harness** — Minimal runtime for testing MSF
+7. **Refinement UI** — Controlled iteration on MSF instruments
+8. **Documentation** — Comprehensive docs with interactive site
+
+## Documentation
+
+View the full documentation:
+
+```bash
+cd apps/docs
+bun run dev
+```
+
+Then open http://localhost:3000 in your browser.
+
+Documentation covers:
+- Introduction and architecture
+- Format specification
+- Instrument Intent Spec
+- Compiler and runtime guides
+- API reference
+- Examples
 
 ## License
 

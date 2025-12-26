@@ -134,11 +134,6 @@ export async function compile(
 
   // Initialize seeded RNG for deterministic round-robin
   const seed = options.seed ?? Date.now();
-  let rngState = seed;
-  function seededRandom(): number {
-    rngState = (rngState * 9301 + 49297) % 233280;
-    return rngState / 233280;
-  }
 
   // Resolve samples from inventory
   const sampleSets: MSFInstrument["sampleSets"] = [];
@@ -160,8 +155,15 @@ export async function compile(
     sampleSetMap.set(articulation.id, sampleSets.length);
 
     // Determine round-robin configuration
-    const roundRobinSamples = samples.filter(
-      (s) => s.metadata.roundRobin !== undefined
+    // Check inventory entries for round-robin metadata before converting to Sample
+    // Note: inventory.getSample returns InventoryEntry which has metadata.roundRobin
+    const inventoryEntries = articulation.samples
+      .map((id) => inventory.getSample(id))
+      .filter((entry): entry is NonNullable<typeof entry> => entry !== undefined);
+    // Type assertion needed because compiler's Sample interface doesn't include roundRobin
+    // but inventory's InventoryEntry does
+    const roundRobinSamples = inventoryEntries.filter(
+      (entry) => (entry.metadata as { roundRobin?: number }).roundRobin !== undefined
     );
     const hasRoundRobin = roundRobinSamples.length > 0;
 
@@ -206,11 +208,14 @@ export async function compile(
       const sampleSetIdx = sampleSetMap.get(articulation.id);
       if (sampleSetIdx === undefined) continue;
 
-      keyZones.push({
-        range: [0, 127], // Full range, can be refined based on sample metadata
-        sampleSetId: sampleSets[sampleSetIdx]!.id,
-        articulationId: articulation.id,
-      });
+      const sampleSet = sampleSets[sampleSetIdx];
+      if (sampleSet) {
+        keyZones.push({
+          range: [0, 127], // Full range, can be refined based on sample metadata
+          sampleSetId: sampleSet.id,
+          articulationId: articulation.id,
+        });
+      }
     }
   } else if (intent.mapping.zones) {
     // Use explicit zones from intent

@@ -2,6 +2,16 @@
   "name": "@msf/validator",
   "version": "0.1.0",
   "type": "module",
+  "author": "Katherine Martinez",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kmartinezmedia/modern-sampler-format"
+  },
+  "homepage": "https://github.com/kmartinezmedia/modern-sampler-format",
+  "bugs": {
+    "url": "https://github.com/kmartinezmedia/modern-sampler-format/issues"
+  },
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "exports": {

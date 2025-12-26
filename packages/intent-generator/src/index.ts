@@ -67,7 +67,7 @@ export async function generateIntent(
 
   // For now, generate a basic intent from available inventory
   const availableSamples = inventory.list();
-  const inventoryReferences = availableSamples.slice(0, 10).map((sample) => ({
+  const inventoryReferences = availableSamples.slice(0, 10).map((sample: { id: string; metadata: { note?: number; velocity?: number; articulation?: string } }) => ({
     id: sample.id,
     role: "primary" as const,
     constraints: {
@@ -156,7 +156,7 @@ function buildInventoryContext(inventory: Inventory): string {
   const sampleList = inventory
     .list()
     .slice(0, 50) // Limit context size
-    .map((entry) => ({
+    .map((entry: { id: string; metadata: { note?: number; velocity?: number; articulation?: string } }) => ({
       id: entry.id,
       note: entry.metadata.note,
       velocity: entry.metadata.velocity,

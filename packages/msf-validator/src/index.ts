@@ -194,8 +194,9 @@ function attemptRepair(
   if (capabilities?.supportedModulationTypes && repaired.modulation) {
     repaired.modulation = {
       ...repaired.modulation,
-      sources: repaired.modulation.sources.filter((source) =>
-        capabilities.supportedModulationTypes?.includes(source.type)
+      sources: repaired.modulation.sources.filter(
+        (source: { type: string }) =>
+          capabilities.supportedModulationTypes?.includes(source.type)
       ),
     };
   }

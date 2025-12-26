@@ -48,6 +48,7 @@ body {
   background: #e5e7eb;
   outline: none;
   -webkit-appearance: none;
+  appearance: none;
 }
 
 .control-knob input[type="range"]::-webkit-slider-thumb {
@@ -58,6 +59,11 @@ body {
   border-radius: 50%;
   background: #3b82f6;
   cursor: pointer;
+}
+
+.control-knob input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .control-knob input[type="range"]::-moz-range-thumb {
@@ -73,5 +79,30 @@ body {
   font-size: 1.25rem;
   font-weight: 600;
   color: #1f2937;
+}
+
+.status {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.status-compiling {
+  background-color: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+}
+
+.status-success {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+.status-error {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
 }
 

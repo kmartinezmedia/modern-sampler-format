@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 /**
  * MSF Refinement UI
@@ -21,6 +21,11 @@ interface RefinementControls {
   presence: number; // 0-100
 }
 
+interface CompilationState {
+  status: "idle" | "compiling" | "success" | "error";
+  message?: string;
+}
+
 export default function RefinementPage() {
   const [controls, setControls] = useState<RefinementControls>({
     attack: 50,
@@ -31,15 +36,96 @@ export default function RefinementPage() {
     presence: 50,
   });
 
-  const handleControlChange = (key: keyof RefinementControls, value: number) => {
-    setControls((prev) => ({ ...prev, [key]: value }));
-    // TODO: Trigger recompilation and audition
-  };
+  const [compilationState, setCompilationState] = useState<CompilationState>({
+    status: "idle",
+  });
+
+  const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
+
+  const triggerRecompilation = useCallback(async (updatedControls: RefinementControls) => {
+    setCompilationState({ status: "compiling", message: "Recompiling instrument..." });
+
+    try {
+      // Convert controls to intent modifications
+      const intentModifications = {
+        attack: updatedControls.attack / 100,
+        brightness: updatedControls.brightness / 100,
+        room: updatedControls.room / 100,
+        release: updatedControls.release / 100,
+        warmth: updatedControls.warmth / 100,
+        presence: updatedControls.presence / 100,
+      };
+
+      // Call API route to recompile
+      const response = await fetch("/api/recompile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ controls: intentModifications }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Recompilation failed");
+      }
+
+      const result = await response.json();
+
+      setCompilationState({
+        status: "success",
+        message: "Instrument recompiled successfully",
+      });
+
+      // Trigger audition if available
+      if (result.auditionUrl) {
+        // Would play audio preview here
+        console.log("Audition available at:", result.auditionUrl);
+      }
+    } catch (error) {
+      setCompilationState({
+        status: "error",
+        message: error instanceof Error ? error.message : "Recompilation failed",
+      });
+    }
+  }, []);
+
+  const handleControlChange = useCallback(
+    (key: keyof RefinementControls, value: number) => {
+      setControls((prev) => {
+        const updated = { ...prev, [key]: value };
+
+        // Debounce recompilation
+        if (debounceTimer) {
+          clearTimeout(debounceTimer);
+        }
+
+        const timer = setTimeout(() => {
+          triggerRecompilation(updated);
+        }, 500); // 500ms debounce
+
+        setDebounceTimer(timer);
+        return updated;
+      });
+    },
+    [debounceTimer, triggerRecompilation]
+  );
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+    };
+  }, [debounceTimer]);
 
   return (
     <main className="container">
       <h1>MSF Refinement UI</h1>
       <p>Structured refinement interface for MSF instruments</p>
+
+      {compilationState.status !== "idle" && (
+        <div className={`status status-${compilationState.status}`}>
+          {compilationState.message}
+        </div>
+      )}
 
       <div className="controls">
         <ControlKnob
