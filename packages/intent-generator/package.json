@@ -1,0 +1,28 @@
+{
+  "name": "@msf/intent-generator",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@msf/compiler": "workspace:*",
+    "@msf/core": "workspace:*",
+    "@msf/inventory": "workspace:*"
+  },
+  "devDependencies": {
+    "tsdown": "^0.18.3",
+    "typescript": "^5.9.3"
+  }
+}

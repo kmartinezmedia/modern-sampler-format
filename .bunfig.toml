@@ -1,0 +1,5 @@
+# Bun configuration for MSF monorepo
+[install]
+# Use workspace protocol for internal packages
+workspace = true
+
