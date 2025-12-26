@@ -154,7 +154,7 @@ function validateSchema(
 function validateCapabilities(
   intent: InstrumentIntent,
   capabilities: EngineCapabilities,
-  errors: ValidationError[],
+  _errors: ValidationError[],
   warnings: ValidationWarning[]
 ): void {
   if (
@@ -185,16 +185,55 @@ function validateCapabilities(
 
 function attemptRepair(
   intent: InstrumentIntent,
-  warnings: ValidationWarning[],
+  _warnings: ValidationWarning[],
   capabilities?: EngineCapabilities
 ): InstrumentIntent {
-  // TODO: Implement safe degradation logic
-  // - Remove unsupported features
-  // - Simplify complex structures
-  // - Apply safe defaults
-  // Use parameters to avoid unused variable warnings
-  void warnings;
-  void capabilities;
-  return { ...intent };
+  const repaired = { ...intent };
+
+  // Remove unsupported modulation sources
+  if (capabilities?.supportedModulationTypes && repaired.modulation) {
+    repaired.modulation = {
+      ...repaired.modulation,
+      sources: repaired.modulation.sources.filter((source) =>
+        capabilities.supportedModulationTypes?.includes(source.type)
+      ),
+    };
+  }
+
+  // Limit articulations if exceeded
+  if (
+    capabilities?.maxArticulations &&
+    repaired.articulations.length > capabilities.maxArticulations
+  ) {
+    repaired.articulations = repaired.articulations.slice(
+      0,
+      capabilities.maxArticulations
+    );
+  }
+
+  // Limit modulation nodes if exceeded
+  if (
+    capabilities?.maxModulationNodes &&
+    repaired.modulation &&
+    repaired.modulation.sources.length > capabilities.maxModulationNodes
+  ) {
+    repaired.modulation = {
+      ...repaired.modulation,
+      sources: repaired.modulation.sources.slice(
+        0,
+        capabilities.maxModulationNodes
+      ),
+    };
+  }
+
+  // Apply safe defaults for missing required fields
+  if (!repaired.mapping.zones || repaired.mapping.zones.length === 0) {
+    repaired.mapping = {
+      ...repaired.mapping,
+      zones: [],
+    };
+  }
+
+  return repaired;
 }
 

@@ -55,25 +55,62 @@ export interface GenerationOptions {
 export async function generateIntent(
   prompt: GenerationPrompt,
   inventory: Inventory,
-  options: GenerationOptions = {}
+  _options: GenerationOptions = {}
 ): Promise<InstrumentIntent> {
-  // TODO: Implement AI-assisted generation
-  // - Build constrained prompt with inventory context
-  // - Call AI model with structured output requirements
-  // - Validate and parse response into InstrumentIntent
-  // - Ensure all inventory references are valid IDs
-  // - Return typed, validated intent
+  // In a real implementation, this would:
+  // - Build constrained prompt with inventory context using buildConstrainedPrompt()
+  // 1. Call AI model (OpenAI, Anthropic, etc.) with structured output requirements
+  // 2. Parse JSON response
+  // 3. Validate against InstrumentIntent schema
+  // 4. Ensure all inventory references are valid IDs
+  // 5. Return typed, validated intent
 
-  // Placeholder implementation
+  // For now, generate a basic intent from available inventory
+  const availableSamples = inventory.list();
+  const inventoryReferences = availableSamples.slice(0, 10).map((sample) => ({
+    id: sample.id,
+    role: "primary" as const,
+    constraints: {
+      noteRange: sample.metadata.note
+        ? ([sample.metadata.note, sample.metadata.note] as [number, number])
+        : undefined,
+      velocityRange: sample.metadata.velocity
+        ? ([sample.metadata.velocity, sample.metadata.velocity] as [number, number])
+        : undefined,
+      articulation: sample.metadata.articulation,
+    },
+  }));
+
+  // Group samples by articulation
+  const articulationMap = new Map<string, string[]>();
+  for (const sample of availableSamples) {
+    const art = sample.metadata.articulation || "default";
+    const existing = articulationMap.get(art);
+    if (existing) {
+      existing.push(sample.id);
+    } else {
+      articulationMap.set(art, [sample.id]);
+    }
+  }
+
+  const articulations = Array.from(articulationMap.entries()).map(
+    ([name, sampleIds], idx) => ({
+      id: `art_${idx}`,
+      name,
+      type: name,
+      samples: sampleIds.slice(), // Create copy to avoid mutation
+    })
+  );
+
   const intent: InstrumentIntent = {
     intent: {
-      name: "Generated Instrument",
+      name: prompt.constraints?.instrumentType || "Generated Instrument",
       description: prompt.description,
       instrumentType: prompt.constraints?.instrumentType || "unknown",
-      targetArticulations: prompt.constraints?.articulations || [],
+      targetArticulations: prompt.constraints?.articulations || Array.from(articulationMap.keys()),
     },
-    inventoryReferences: [],
-    articulations: [],
+    inventoryReferences,
+    articulations,
     mapping: {
       strategy: "chromatic",
     },
@@ -90,7 +127,7 @@ export async function generateIntent(
 export function buildConstrainedPrompt(
   prompt: GenerationPrompt,
   inventory: Inventory,
-  options: GenerationOptions = {}
+  _options: GenerationOptions = {}
 ): string {
   const inventoryContext = buildInventoryContext(inventory);
   const schemaDescription = buildSchemaDescription();

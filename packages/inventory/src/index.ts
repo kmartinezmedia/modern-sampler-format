@@ -196,52 +196,34 @@ export async function scanDirectory(
   const inventory = new Inventory();
   const defaultExtensions = [".wav", ".aiff", ".mp3", ".flac", ".ogg"];
   const extensions = options.extensions || defaultExtensions;
-  const maxDepth = options.maxDepth ?? Infinity;
   const ignoreHidden = options.ignoreHidden ?? true;
 
-  async function scanRecursive(
-    dir: string,
-    depth: number
-  ): Promise<void> {
-    if (depth > maxDepth) return;
+  // Use Bun's glob to find audio files
+  const globPattern = `**/*{${extensions.join(",")}}`;
+  const glob = new Bun.Glob(globPattern);
 
-    try {
-      const entries = await Array.fromAsync(
-        Bun.file(dir).stream().pipeThrough(new Bun.Transcoder())
-      );
+  try {
+    for await (const file of glob.scan({
+      cwd: directoryPath,
+      onlyFiles: true,
+    })) {
+      if (ignoreHidden && file.includes("/.")) continue;
 
-      for await (const entry of await Bun.file(dir).arrayBuffer()) {
-        // Note: Bun's file system API is async iterator-based
-        // This is a simplified implementation
-        // Full implementation would use proper directory traversal
+      const fullPath = `${directoryPath}/${file}`;
+      try {
+        const entry = await createInventoryEntry(fullPath, file);
+        inventory.add(entry);
+      } catch (error) {
+        // Skip files that can't be processed
+        // Error handling without console in library code
+        void error;
       }
-
-      // Simplified: use Bun's glob or readdir
-      const files = await Array.fromAsync(
-        new Bun.Glob(`**/*{${extensions.join(",")}}`).scan({
-          cwd: dir,
-          onlyFiles: true,
-        })
-      );
-
-      for (const file of files) {
-        const fullPath = `${dir}/${file}`;
-        if (ignoreHidden && file.includes("/.")) continue;
-
-        try {
-          const entry = await createInventoryEntry(fullPath, file);
-          inventory.add(entry);
-        } catch (error) {
-          // Skip files that can't be processed
-          console.warn(`Skipping ${fullPath}: ${error instanceof Error ? error.message : String(error)}`);
-        }
-      }
-    } catch (error) {
-      console.warn(`Error scanning ${dir}: ${error instanceof Error ? error.message : String(error)}`);
     }
+  } catch (error) {
+    // Error handling without console in library code
+    void error;
   }
 
-  await scanRecursive(directoryPath, 0);
   return inventory;
 }
 
@@ -250,7 +232,7 @@ async function createInventoryEntry(
   relativePath: string
 ): Promise<InventoryEntry> {
   const file = Bun.file(filePath);
-  const stats = await file.stat();
+  await file.stat(); // Check file exists
   const normalizedName = relativePath.replace(/\.[^.]+$/, "");
 
   // Extract metadata from filename
@@ -332,7 +314,13 @@ function extractMetadataFromFilename(filename: string): {
 
 function generateId(filePath: string): string {
   // Generate a deterministic ID from file path
-  return `sample_${Buffer.from(filePath).toString("base64url").slice(0, 16)}`;
+  const encoder = new TextEncoder();
+  const data = encoder.encode(filePath);
+  const base64 = btoa(String.fromCharCode(...data))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
+  return `sample_${base64.slice(0, 16)}`;
 }
 
 async function calculateChecksum(filePath: string): Promise<string> {

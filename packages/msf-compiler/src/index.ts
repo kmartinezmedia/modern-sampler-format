@@ -132,12 +132,156 @@ export async function compile(
   const warnings: string[] = [];
   const errors: string[] = [];
 
-  // TODO: Implement compiler logic
-  // - Resolve samples from inventory
-  // - Build explicit key and velocity zones
-  // - Assign round-robin behavior using seeded RNG
-  // - Generate modulation graphs
-  // - Emit event rules for performance behavior
+  // Initialize seeded RNG for deterministic round-robin
+  const seed = options.seed ?? Date.now();
+  let rngState = seed;
+  function seededRandom(): number {
+    rngState = (rngState * 9301 + 49297) % 233280;
+    return rngState / 233280;
+  }
+
+  // Resolve samples from inventory
+  const sampleSets: MSFInstrument["sampleSets"] = [];
+  const sampleSetMap = new Map<string, number>();
+
+  for (const articulation of intent.articulations) {
+    const samples = articulation.samples
+      .map((id) => inventory.getSample(id))
+      .filter((sample): sample is Sample => sample !== undefined);
+
+    if (samples.length === 0) {
+      warnings.push(
+        `Articulation ${articulation.id} has no valid samples in inventory`
+      );
+      continue;
+    }
+
+    const sampleSetId = `sampleset_${articulation.id}`;
+    sampleSetMap.set(articulation.id, sampleSets.length);
+
+    // Determine round-robin configuration
+    const roundRobinSamples = samples.filter(
+      (s) => s.metadata.roundRobin !== undefined
+    );
+    const hasRoundRobin = roundRobinSamples.length > 0;
+
+    sampleSets.push({
+      id: sampleSetId,
+      samples: samples.map((sample) => ({
+        id: sample.id,
+        path: sample.path,
+        note: sample.metadata.note,
+        velocity: sample.metadata.velocity,
+        articulation: articulation.id,
+        metadata: {
+          duration: sample.metadata.duration,
+          sampleRate: sample.metadata.sampleRate,
+          channels: sample.metadata.channels,
+          format: sample.metadata.format,
+        },
+      })),
+      roundRobin: hasRoundRobin
+        ? {
+            strategy: "random",
+            seed,
+            count: roundRobinSamples.length,
+          }
+        : undefined,
+    });
+
+    decisions.push({
+      type: "sampleSetCreated",
+      reason: `Created sample set for articulation ${articulation.id}`,
+      context: { articulationId: articulation.id, sampleCount: samples.length },
+    });
+  }
+
+  // Build explicit key and velocity zones
+  const keyZones: MSFInstrument["mapping"]["keyZones"] = [];
+  const velocityZones: MSFInstrument["mapping"]["velocityZones"] = [];
+
+  if (intent.mapping.strategy === "chromatic") {
+    // Create key zones for each articulation
+    for (const articulation of intent.articulations) {
+      const sampleSetIdx = sampleSetMap.get(articulation.id);
+      if (sampleSetIdx === undefined) continue;
+
+      keyZones.push({
+        range: [0, 127], // Full range, can be refined based on sample metadata
+        sampleSetId: sampleSets[sampleSetIdx]!.id,
+        articulationId: articulation.id,
+      });
+    }
+  } else if (intent.mapping.zones) {
+    // Use explicit zones from intent
+    for (const zone of intent.mapping.zones) {
+      for (const sampleSetId of zone.sampleSetIds) {
+        if (zone.keyRange) {
+          keyZones.push({
+            range: zone.keyRange,
+            sampleSetId,
+          });
+        }
+        if (zone.velocityRange) {
+          velocityZones.push({
+            range: zone.velocityRange,
+            sampleSetId,
+          });
+        }
+      }
+    }
+  }
+
+  // Generate modulation graphs
+  const modulationNodes: MSFInstrument["modulation"]["nodes"] = [];
+  const modulationEdges: MSFInstrument["modulation"]["edges"] = [];
+
+  if (intent.modulation) {
+    for (const source of intent.modulation.sources) {
+      modulationNodes.push({
+        id: source.id,
+        type: source.type as MSFInstrument["modulation"]["nodes"][number]["type"],
+        parameters: source.parameters || {},
+      });
+    }
+
+    for (const target of intent.modulation.targets) {
+      modulationEdges.push({
+        source: target.sourceId,
+        target: target.parameter,
+        parameter: target.parameter,
+        amount: target.amount,
+      });
+    }
+  }
+
+  // Emit event rules for performance behavior
+  const rules: MSFInstrument["rules"] = [];
+
+  if (intent.performance) {
+    for (const ruleIntent of intent.performance.rules) {
+      rules.push({
+        id: `rule_${rules.length}`,
+        trigger: {
+          type: ruleIntent.trigger as MSFInstrument["rules"][number]["trigger"]["type"],
+        },
+        action: {
+          type: ruleIntent.action as MSFInstrument["rules"][number]["action"]["type"],
+          parameters: ruleIntent.parameters || {},
+        },
+      });
+    }
+  }
+
+  // Build articulations
+  const articulations: MSFInstrument["articulations"] = intent.articulations.map(
+    (a) => ({
+      id: a.id,
+      name: a.name,
+      type: a.type as MSFInstrument["articulations"][number]["type"],
+      parameters: a.parameters || {},
+    })
+  );
 
   const report: BuildReport = {
     decisions,
@@ -145,24 +289,24 @@ export async function compile(
     errors,
   };
 
-  // Placeholder instrument
   const instrument: MSFInstrument = {
     identity: {
-      id: `instrument-${Date.now()}`,
+      id: `instrument_${intent.intent.name.toLowerCase().replace(/\s+/g, "_")}_${seed}`,
       name: intent.intent.name,
       version: "0.1.0",
+      description: intent.intent.description,
     },
-    articulations: [],
-    sampleSets: [],
+    articulations,
+    sampleSets,
     mapping: {
-      keyZones: [],
-      velocityZones: [],
+      keyZones,
+      velocityZones,
     },
     modulation: {
-      nodes: [],
-      edges: [],
+      nodes: modulationNodes,
+      edges: modulationEdges,
     },
-    rules: [],
+    rules,
     metadata: {
       compiledAt: new Date().toISOString(),
       compilerVersion: "0.1.0",
