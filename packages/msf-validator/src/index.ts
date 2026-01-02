@@ -3,6 +3,22 @@
  *
  * A hard boundary between intent and runtime.
  * No invalid or partial intent ever reaches MSF.
+ *
+ * MSF RULE: No Backward Compatibility
+ * ===================================
+ * MSF is a compiled format. All decisions are made at compile time.
+ * Runtime must never guess, infer, or fall back to legacy behavior.
+ *
+ * The validator enforces this rule:
+ * - Regions are REQUIRED (not optional)
+ * - Missing regions = validation error (not warning)
+ * - No "closest sample" heuristics allowed
+ * - No runtime inference allowed
+ * - Fail fast if data is missing or incomplete
+ *
+ * If you need to support old formats, migrate them at compile time,
+ * not at runtime. MSF is not a configuration language - it's a
+ * fully-resolved runtime model.
  */
 
 import type { InstrumentIntent } from "@msf/compiler";
@@ -91,6 +107,11 @@ export function validateIntent(
  * Validate MSF Instrument
  *
  * Ensures a compiled MSF instrument is complete and valid.
+ *
+ * MSF RULE: No Backward Compatibility
+ * ===================================
+ * MSF requires regions. This is non-negotiable.
+ * Instruments without regions are invalid and must be rejected.
  */
 export function validateMSF(
   instrument: MSFInstrument
@@ -113,6 +134,62 @@ export function validateMSF(
       message: "At least one sample set is required",
       code: "NO_SAMPLE_SETS",
     });
+  }
+
+  // MSF RULE: Regions are REQUIRED. No backward compatibility.
+  if (!instrument.regions || instrument.regions.length === 0) {
+    errors.push({
+      path: "regions",
+      message: "MSF requires explicit regions. This instrument was not compiled correctly. " +
+              "Regions must be generated at compile time. There is no backward compatibility - " +
+              "instruments without regions are invalid and must be recompiled.",
+      code: "NO_REGIONS",
+    });
+  } else {
+    // Validate that every sample has at least one region
+    const sampleIds = new Set<string>();
+    for (const sampleSet of instrument.sampleSets) {
+      for (const sample of sampleSet.samples) {
+        sampleIds.add(sample.id);
+      }
+    }
+
+    const regionSampleIds = new Set(instrument.regions.map((r) => r.sampleId));
+    const samplesWithoutRegions = Array.from(sampleIds).filter((id) => !regionSampleIds.has(id));
+
+    if (samplesWithoutRegions.length > 0) {
+      errors.push({
+        path: "regions",
+        message: `Samples without regions: ${samplesWithoutRegions.join(", ")}. ` +
+                "Every sample must have at least one region covering its range.",
+        code: "SAMPLES_WITHOUT_REGIONS",
+      });
+    }
+
+    // Validate region coverage (no gaps in key range)
+    // This is a warning, not an error, as some instruments may intentionally have gaps
+    const coveredKeys = new Set<number>();
+    for (const region of instrument.regions) {
+      for (let key = region.loKey; key <= region.hiKey; key++) {
+        coveredKeys.add(key);
+      }
+    }
+
+    // Check for excessive transposition warnings
+    for (const region of instrument.regions) {
+      const maxTransposition = Math.max(
+        Math.abs(region.pitchKeyCenter - region.loKey),
+        Math.abs(region.hiKey - region.pitchKeyCenter)
+      );
+      if (maxTransposition > 7) {
+        warnings.push({
+          path: `regions.${region.id}`,
+          message: `Region ${region.id} has excessive transposition (${maxTransposition} semitones) at range boundaries`,
+          code: "EXCESSIVE_TRANSPOSITION",
+          suggestion: "Consider adding more samples to reduce pitch-shifting artifacts",
+        });
+      }
+    }
   }
 
   if (instrument.mapping.keyZones.length === 0) {

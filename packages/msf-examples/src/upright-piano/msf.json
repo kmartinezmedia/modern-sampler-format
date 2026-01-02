@@ -1,0 +1,1685 @@
+{
+  "identity": {
+    "id": "upright-piano-kw",
+    "name": "Upright Piano KW",
+    "version": "0.1.0",
+    "description": "Upright piano with velocity layers (piano/forte) covering A0 to C8"
+  },
+  "articulations": [
+    {
+      "id": "art_piano",
+      "name": "piano",
+      "type": "velocity-layer",
+      "parameters": {
+        "attack": 0.01,
+        "release": 0.3,
+        "brightness": 0.5,
+        "room": 0.2,
+        "warmth": 0.5,
+        "presence": 0.5
+      }
+    },
+    {
+      "id": "art_forte",
+      "name": "forte",
+      "type": "velocity-layer",
+      "parameters": {
+        "attack": 0.01,
+        "release": 0.3,
+        "brightness": 0.5,
+        "room": 0.2,
+        "warmth": 0.5,
+        "presence": 0.5
+      }
+    }
+  ],
+  "sampleSets": [
+    {
+      "id": "sampleset_art_piano",
+      "samples": [
+        {
+          "id": "piano_A5vL",
+          "path": "samples/A5vL.wav",
+          "note": 81,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 1.6041043083900226,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_C1vL",
+          "path": "samples/C1vL.wav",
+          "note": 24,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 10.684875283446711,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_D#2vL",
+          "path": "samples/D#2vL.wav",
+          "note": 39,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 13.269727891156462,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_F#1vL",
+          "path": "samples/F#1vL.wav",
+          "note": 30,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 11.042902494331067,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_F#3vL",
+          "path": "samples/F#3vL.wav",
+          "note": 54,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 4.852517006802721,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_A7vL",
+          "path": "samples/A7vL.wav",
+          "note": 105,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 0.7348299319727891,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_C3vL",
+          "path": "samples/C3vL.wav",
+          "note": 48,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 4.822902494331066,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_F#7vL",
+          "path": "samples/F#7vL.wav",
+          "note": 102,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 0.6045351473922902,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_C7vL",
+          "path": "samples/C7vL.wav",
+          "note": 96,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 0.628344671201814,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_D#4vL",
+          "path": "samples/D#4vL.wav",
+          "note": 63,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 4.189863945578232,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_A3vL",
+          "path": "samples/A3vL.wav",
+          "note": 57,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 6.432925170068027,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_D#6vL",
+          "path": "samples/D#6vL.wav",
+          "note": 87,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 1.068548752834467,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_C5vL",
+          "path": "samples/C5vL.wav",
+          "note": 72,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 5.483537414965986,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_A1vL",
+          "path": "samples/A1vL.wav",
+          "note": 33,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 11.883151927437641,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_F#5vL",
+          "path": "samples/F#5vL.wav",
+          "note": 78,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 1.8958956916099774,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_D#3vL",
+          "path": "samples/D#3vL.wav",
+          "note": 51,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 5.796825396825397,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_A4vL",
+          "path": "samples/A4vL.wav",
+          "note": 69,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 2.1437868480725624,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_D#1vL",
+          "path": "samples/D#1vL.wav",
+          "note": 27,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 12.84045351473923,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_C2vL",
+          "path": "samples/C2vL.wav",
+          "note": 36,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 11.57374149659864,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_A6vL",
+          "path": "samples/A6vL.wav",
+          "note": 93,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 0.8051927437641724,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_F#2vL",
+          "path": "samples/F#2vL.wav",
+          "note": 42,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 9.945056689342403,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_A2vL",
+          "path": "samples/A2vL.wav",
+          "note": 45,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 8.189863945578232,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_C6vL",
+          "path": "samples/C6vL.wav",
+          "note": 84,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 2.209591836734694,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_D#5vL",
+          "path": "samples/D#5vL.wav",
+          "note": 75,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 2.8398866213151925,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_F#6vL",
+          "path": "samples/F#6vL.wav",
+          "note": 90,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 1.0929931972789115,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_F#4vL",
+          "path": "samples/F#4vL.wav",
+          "note": 66,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 5.796303854875283,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_A0vL",
+          "path": "samples/A0vL.wav",
+          "note": 21,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 7.569705215419501,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_D#7vL",
+          "path": "samples/D#7vL.wav",
+          "note": 99,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 0.7913378684807256,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_C8vL",
+          "path": "samples/C8vL.wav",
+          "note": 108,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 0.3938548752834467,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_C4vL",
+          "path": "samples/C4vL.wav",
+          "note": 60,
+          "velocity": 40,
+          "articulation": "art_piano",
+          "metadata": {
+            "duration": 8.033197278911565,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sampleset_art_forte",
+      "samples": [
+        {
+          "id": "piano_A4vH",
+          "path": "samples/A4vH.wav",
+          "note": 69,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 2.9593197278911565,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_B2vH",
+          "path": "samples/B2vH.wav",
+          "note": 47,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 7.73952380952381,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_D#3vH",
+          "path": "samples/D#3vH.wav",
+          "note": 51,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 5.449659863945579,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_F#2vH",
+          "path": "samples/F#2vH.wav",
+          "note": 42,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 8.923514739229025,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_A6vH",
+          "path": "samples/A6vH.wav",
+          "note": 93,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 1.251655328798186,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_C2vH",
+          "path": "samples/C2vH.wav",
+          "note": 36,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 8.539523809523809,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_D#1vH",
+          "path": "samples/D#1vH.wav",
+          "note": 27,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 10.471927437641723,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_B0vH",
+          "path": "samples/B0vH.wav",
+          "note": 23,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 7.545396825396826,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_F#6vH",
+          "path": "samples/F#6vH.wav",
+          "note": 90,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 1.2555555555555555,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_D#5vH",
+          "path": "samples/D#5vH.wav",
+          "note": 75,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 3.1575963718820863,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_B4vH",
+          "path": "samples/B4vH.wav",
+          "note": 71,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 3.425668934240363,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_C6vH",
+          "path": "samples/C6vH.wav",
+          "note": 84,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 2.2102267573696146,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_B6vH",
+          "path": "samples/B6vH.wav",
+          "note": 95,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 1.034920634920635,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_C8vH",
+          "path": "samples/C8vH.wav",
+          "note": 108,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 0.6942403628117914,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_D#7vH",
+          "path": "samples/D#7vH.wav",
+          "note": 99,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 0.7080498866213152,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_A0vH",
+          "path": "samples/A0vH.wav",
+          "note": 21,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 7.034739229024943,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_F#4vH",
+          "path": "samples/F#4vH.wav",
+          "note": 66,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 4.202857142857143,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_F#1vH",
+          "path": "samples/F#1vH.wav",
+          "note": 30,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 7.9721541950113375,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_D#2vH",
+          "path": "samples/D#2vH.wav",
+          "note": 39,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 9.03530612244898,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_B3vH",
+          "path": "samples/B3vH.wav",
+          "note": 59,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 5.160839002267574,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_C1vH",
+          "path": "samples/C1vH.wav",
+          "note": 24,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 9.629773242630385,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_A5vH",
+          "path": "samples/A5vH.wav",
+          "note": 81,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 2.839206349206349,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_C3vH",
+          "path": "samples/C3vH.wav",
+          "note": 48,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 6.963401360544218,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_B1vH",
+          "path": "samples/B1vH.wav",
+          "note": 35,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 8.320816326530613,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_A7vH",
+          "path": "samples/A7vH.wav",
+          "note": 105,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 0.9079818594104309,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_F#3vH",
+          "path": "samples/F#3vH.wav",
+          "note": 54,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 6.023809523809524,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_A3vH",
+          "path": "samples/A3vH.wav",
+          "note": 57,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 4.236213151927438,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_B5vH",
+          "path": "samples/B5vH.wav",
+          "note": 83,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 2.699591836734694,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_D#4vH",
+          "path": "samples/D#4vH.wav",
+          "note": 63,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 4.93453514739229,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_C7vH",
+          "path": "samples/C7vH.wav",
+          "note": 96,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 1.791201814058957,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_F#7vH",
+          "path": "samples/F#7vH.wav",
+          "note": 102,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 0.6682539682539682,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_F#5vH",
+          "path": "samples/F#5vH.wav",
+          "note": 78,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 1.9666666666666666,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_A1vH",
+          "path": "samples/A1vH.wav",
+          "note": 33,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 10.032834467120182,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_C5vH",
+          "path": "samples/C5vH.wav",
+          "note": 72,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 3.470294784580499,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_D#6vH",
+          "path": "samples/D#6vH.wav",
+          "note": 87,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 1.8361451247165532,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        },
+        {
+          "id": "piano_B7vH",
+          "path": "samples/B7vH.wav",
+          "note": 107,
+          "velocity": 100,
+          "articulation": "art_forte",
+          "metadata": {
+            "duration": 0.834625850340136,
+            "sampleRate": 44100,
+            "channels": 2,
+            "format": "wav"
+          }
+        }
+      ]
+    }
+  ],
+  "regions": [
+    {
+      "id": "region_piano_A5vL",
+      "sampleId": "piano_A5vL",
+      "loKey": 80,
+      "hiKey": 82,
+      "pitchKeyCenter": 81,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_C1vL",
+      "sampleId": "piano_C1vL",
+      "loKey": 23,
+      "hiKey": 25,
+      "pitchKeyCenter": 24,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_D#2vL",
+      "sampleId": "piano_D#2vL",
+      "loKey": 38,
+      "hiKey": 40,
+      "pitchKeyCenter": 39,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_F#1vL",
+      "sampleId": "piano_F#1vL",
+      "loKey": 29,
+      "hiKey": 31,
+      "pitchKeyCenter": 30,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_F#3vL",
+      "sampleId": "piano_F#3vL",
+      "loKey": 53,
+      "hiKey": 55,
+      "pitchKeyCenter": 54,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_A7vL",
+      "sampleId": "piano_A7vL",
+      "loKey": 104,
+      "hiKey": 106,
+      "pitchKeyCenter": 105,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_C3vL",
+      "sampleId": "piano_C3vL",
+      "loKey": 47,
+      "hiKey": 49,
+      "pitchKeyCenter": 48,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_F#7vL",
+      "sampleId": "piano_F#7vL",
+      "loKey": 101,
+      "hiKey": 103,
+      "pitchKeyCenter": 102,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_C7vL",
+      "sampleId": "piano_C7vL",
+      "loKey": 95,
+      "hiKey": 97,
+      "pitchKeyCenter": 96,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_D#4vL",
+      "sampleId": "piano_D#4vL",
+      "loKey": 62,
+      "hiKey": 64,
+      "pitchKeyCenter": 63,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_A3vL",
+      "sampleId": "piano_A3vL",
+      "loKey": 56,
+      "hiKey": 58,
+      "pitchKeyCenter": 57,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_D#6vL",
+      "sampleId": "piano_D#6vL",
+      "loKey": 86,
+      "hiKey": 88,
+      "pitchKeyCenter": 87,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_C5vL",
+      "sampleId": "piano_C5vL",
+      "loKey": 71,
+      "hiKey": 73,
+      "pitchKeyCenter": 72,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_A1vL",
+      "sampleId": "piano_A1vL",
+      "loKey": 32,
+      "hiKey": 34,
+      "pitchKeyCenter": 33,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_F#5vL",
+      "sampleId": "piano_F#5vL",
+      "loKey": 77,
+      "hiKey": 79,
+      "pitchKeyCenter": 78,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_D#3vL",
+      "sampleId": "piano_D#3vL",
+      "loKey": 50,
+      "hiKey": 52,
+      "pitchKeyCenter": 51,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_A4vL",
+      "sampleId": "piano_A4vL",
+      "loKey": 68,
+      "hiKey": 70,
+      "pitchKeyCenter": 69,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_D#1vL",
+      "sampleId": "piano_D#1vL",
+      "loKey": 26,
+      "hiKey": 28,
+      "pitchKeyCenter": 27,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_C2vL",
+      "sampleId": "piano_C2vL",
+      "loKey": 35,
+      "hiKey": 37,
+      "pitchKeyCenter": 36,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_A6vL",
+      "sampleId": "piano_A6vL",
+      "loKey": 92,
+      "hiKey": 94,
+      "pitchKeyCenter": 93,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_F#2vL",
+      "sampleId": "piano_F#2vL",
+      "loKey": 41,
+      "hiKey": 43,
+      "pitchKeyCenter": 42,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_A2vL",
+      "sampleId": "piano_A2vL",
+      "loKey": 44,
+      "hiKey": 46,
+      "pitchKeyCenter": 45,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_C6vL",
+      "sampleId": "piano_C6vL",
+      "loKey": 83,
+      "hiKey": 85,
+      "pitchKeyCenter": 84,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_D#5vL",
+      "sampleId": "piano_D#5vL",
+      "loKey": 74,
+      "hiKey": 76,
+      "pitchKeyCenter": 75,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_F#6vL",
+      "sampleId": "piano_F#6vL",
+      "loKey": 89,
+      "hiKey": 91,
+      "pitchKeyCenter": 90,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_F#4vL",
+      "sampleId": "piano_F#4vL",
+      "loKey": 65,
+      "hiKey": 67,
+      "pitchKeyCenter": 66,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_A0vL",
+      "sampleId": "piano_A0vL",
+      "loKey": 21,
+      "hiKey": 22,
+      "pitchKeyCenter": 21,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_D#7vL",
+      "sampleId": "piano_D#7vL",
+      "loKey": 98,
+      "hiKey": 100,
+      "pitchKeyCenter": 99,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_C8vL",
+      "sampleId": "piano_C8vL",
+      "loKey": 107,
+      "hiKey": 108,
+      "pitchKeyCenter": 108,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_C4vL",
+      "sampleId": "piano_C4vL",
+      "loKey": 59,
+      "hiKey": 61,
+      "pitchKeyCenter": 60,
+      "loVel": 40,
+      "hiVel": 80,
+      "articulationId": "art_piano",
+      "sampleSetId": "sampleset_art_piano"
+    },
+    {
+      "id": "region_piano_A4vH",
+      "sampleId": "piano_A4vH",
+      "loKey": 68,
+      "hiKey": 69,
+      "pitchKeyCenter": 69,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_B2vH",
+      "sampleId": "piano_B2vH",
+      "loKey": 46,
+      "hiKey": 47,
+      "pitchKeyCenter": 47,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_D#3vH",
+      "sampleId": "piano_D#3vH",
+      "loKey": 50,
+      "hiKey": 52,
+      "pitchKeyCenter": 51,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_F#2vH",
+      "sampleId": "piano_F#2vH",
+      "loKey": 41,
+      "hiKey": 45,
+      "pitchKeyCenter": 42,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_A6vH",
+      "sampleId": "piano_A6vH",
+      "loKey": 92,
+      "hiKey": 93,
+      "pitchKeyCenter": 93,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_C2vH",
+      "sampleId": "piano_C2vH",
+      "loKey": 36,
+      "hiKey": 37,
+      "pitchKeyCenter": 36,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_D#1vH",
+      "sampleId": "piano_D#1vH",
+      "loKey": 26,
+      "hiKey": 28,
+      "pitchKeyCenter": 27,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_B0vH",
+      "sampleId": "piano_B0vH",
+      "loKey": 23,
+      "hiKey": 23,
+      "pitchKeyCenter": 23,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_F#6vH",
+      "sampleId": "piano_F#6vH",
+      "loKey": 89,
+      "hiKey": 91,
+      "pitchKeyCenter": 90,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_D#5vH",
+      "sampleId": "piano_D#5vH",
+      "loKey": 74,
+      "hiKey": 76,
+      "pitchKeyCenter": 75,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_B4vH",
+      "sampleId": "piano_B4vH",
+      "loKey": 70,
+      "hiKey": 71,
+      "pitchKeyCenter": 71,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_C6vH",
+      "sampleId": "piano_C6vH",
+      "loKey": 84,
+      "hiKey": 85,
+      "pitchKeyCenter": 84,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_B6vH",
+      "sampleId": "piano_B6vH",
+      "loKey": 94,
+      "hiKey": 95,
+      "pitchKeyCenter": 95,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_C8vH",
+      "sampleId": "piano_C8vH",
+      "loKey": 108,
+      "hiKey": 108,
+      "pitchKeyCenter": 108,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_D#7vH",
+      "sampleId": "piano_D#7vH",
+      "loKey": 98,
+      "hiKey": 100,
+      "pitchKeyCenter": 99,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_A0vH",
+      "sampleId": "piano_A0vH",
+      "loKey": 21,
+      "hiKey": 22,
+      "pitchKeyCenter": 21,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_F#4vH",
+      "sampleId": "piano_F#4vH",
+      "loKey": 65,
+      "hiKey": 67,
+      "pitchKeyCenter": 66,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_F#1vH",
+      "sampleId": "piano_F#1vH",
+      "loKey": 29,
+      "hiKey": 31,
+      "pitchKeyCenter": 30,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_D#2vH",
+      "sampleId": "piano_D#2vH",
+      "loKey": 38,
+      "hiKey": 40,
+      "pitchKeyCenter": 39,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_B3vH",
+      "sampleId": "piano_B3vH",
+      "loKey": 58,
+      "hiKey": 61,
+      "pitchKeyCenter": 59,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_C1vH",
+      "sampleId": "piano_C1vH",
+      "loKey": 24,
+      "hiKey": 25,
+      "pitchKeyCenter": 24,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_A5vH",
+      "sampleId": "piano_A5vH",
+      "loKey": 80,
+      "hiKey": 81,
+      "pitchKeyCenter": 81,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_C3vH",
+      "sampleId": "piano_C3vH",
+      "loKey": 48,
+      "hiKey": 49,
+      "pitchKeyCenter": 48,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_B1vH",
+      "sampleId": "piano_B1vH",
+      "loKey": 34,
+      "hiKey": 35,
+      "pitchKeyCenter": 35,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_A7vH",
+      "sampleId": "piano_A7vH",
+      "loKey": 104,
+      "hiKey": 105,
+      "pitchKeyCenter": 105,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_F#3vH",
+      "sampleId": "piano_F#3vH",
+      "loKey": 53,
+      "hiKey": 55,
+      "pitchKeyCenter": 54,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_A3vH",
+      "sampleId": "piano_A3vH",
+      "loKey": 56,
+      "hiKey": 57,
+      "pitchKeyCenter": 57,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_B5vH",
+      "sampleId": "piano_B5vH",
+      "loKey": 82,
+      "hiKey": 83,
+      "pitchKeyCenter": 83,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_D#4vH",
+      "sampleId": "piano_D#4vH",
+      "loKey": 62,
+      "hiKey": 64,
+      "pitchKeyCenter": 63,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_C7vH",
+      "sampleId": "piano_C7vH",
+      "loKey": 96,
+      "hiKey": 97,
+      "pitchKeyCenter": 96,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_F#7vH",
+      "sampleId": "piano_F#7vH",
+      "loKey": 101,
+      "hiKey": 103,
+      "pitchKeyCenter": 102,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_F#5vH",
+      "sampleId": "piano_F#5vH",
+      "loKey": 77,
+      "hiKey": 79,
+      "pitchKeyCenter": 78,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_A1vH",
+      "sampleId": "piano_A1vH",
+      "loKey": 32,
+      "hiKey": 33,
+      "pitchKeyCenter": 33,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_C5vH",
+      "sampleId": "piano_C5vH",
+      "loKey": 72,
+      "hiKey": 73,
+      "pitchKeyCenter": 72,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_D#6vH",
+      "sampleId": "piano_D#6vH",
+      "loKey": 86,
+      "hiKey": 88,
+      "pitchKeyCenter": 87,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    },
+    {
+      "id": "region_piano_B7vH",
+      "sampleId": "piano_B7vH",
+      "loKey": 106,
+      "hiKey": 107,
+      "pitchKeyCenter": 107,
+      "loVel": 81,
+      "hiVel": 100,
+      "articulationId": "art_forte",
+      "sampleSetId": "sampleset_art_forte"
+    }
+  ],
+  "mapping": {
+    "keyZones": [],
+    "velocityZones": [
+      {
+        "range": [
+          0,
+          70
+        ],
+        "sampleSetId": "art_piano"
+      },
+      {
+        "range": [
+          71,
+          127
+        ],
+        "sampleSetId": "art_forte"
+      }
+    ]
+  },
+  "modulation": {
+    "nodes": [],
+    "edges": []
+  },
+  "rules": [],
+  "metadata": {
+    "compiledAt": "2025-12-26T21:58:17.553Z",
+    "compilerVersion": "0.1.0",
+    "sourceIntent": "{\"intent\":{\"name\":\"Upright Piano KW\",\"description\":\"Upright piano with velocity layers (piano/forte) covering A0 to C8\",\"instrumentType\":\"piano\",\"targetArticulations\":[\"piano\",\"forte\"]},\"inventoryReferences\":[{\"id\":\"piano_A5vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[81,81],\"velocityRange\":[40,40]}},{\"id\":\"piano_A4vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[69,69],\"velocityRange\":[100,100]}},{\"id\":\"piano_B2vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[47,47],\"velocityRange\":[100,100]}},{\"id\":\"piano_C1vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[24,24],\"velocityRange\":[40,40]}},{\"id\":\"piano_D#3vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[51,51],\"velocityRange\":[100,100]}},{\"id\":\"piano_D#2vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[39,39],\"velocityRange\":[40,40]}},{\"id\":\"piano_F#1vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[30,30],\"velocityRange\":[40,40]}},{\"id\":\"piano_F#2vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[42,42],\"velocityRange\":[100,100]}},{\"id\":\"piano_F#3vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[54,54],\"velocityRange\":[40,40]}},{\"id\":\"piano_A6vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[93,93],\"velocityRange\":[100,100]}},{\"id\":\"piano_A7vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[105,105],\"velocityRange\":[40,40]}},{\"id\":\"piano_C2vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[36,36],\"velocityRange\":[100,100]}},{\"id\":\"piano_D#1vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[27,27],\"velocityRange\":[100,100]}},{\"id\":\"piano_C3vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[48,48],\"velocityRange\":[40,40]}},{\"id\":\"piano_B0vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[23,23],\"velocityRange\":[100,100]}},{\"id\":\"piano_F#7vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[102,102],\"velocityRange\":[40,40]}},{\"id\":\"piano_F#6vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[90,90],\"velocityRange\":[100,100]}},{\"id\":\"piano_D#5vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[75,75],\"velocityRange\":[100,100]}},{\"id\":\"piano_C7vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[96,96],\"velocityRange\":[40,40]}},{\"id\":\"piano_B4vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[71,71],\"velocityRange\":[100,100]}},{\"id\":\"piano_D#4vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[63,63],\"velocityRange\":[40,40]}},{\"id\":\"piano_C6vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[84,84],\"velocityRange\":[100,100]}},{\"id\":\"piano_A3vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[57,57],\"velocityRange\":[40,40]}},{\"id\":\"piano_D#6vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[87,87],\"velocityRange\":[40,40]}},{\"id\":\"piano_B6vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[95,95],\"velocityRange\":[100,100]}},{\"id\":\"piano_C5vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[72,72],\"velocityRange\":[40,40]}},{\"id\":\"piano_C8vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[108,108],\"velocityRange\":[100,100]}},{\"id\":\"piano_D#7vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[99,99],\"velocityRange\":[100,100]}},{\"id\":\"piano_A0vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[21,21],\"velocityRange\":[100,100]}},{\"id\":\"piano_A1vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[33,33],\"velocityRange\":[40,40]}},{\"id\":\"piano_F#4vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[66,66],\"velocityRange\":[100,100]}},{\"id\":\"piano_F#5vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[78,78],\"velocityRange\":[40,40]}},{\"id\":\"piano_F#1vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[30,30],\"velocityRange\":[100,100]}},{\"id\":\"piano_D#2vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[39,39],\"velocityRange\":[100,100]}},{\"id\":\"piano_B3vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[59,59],\"velocityRange\":[100,100]}},{\"id\":\"piano_D#3vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[51,51],\"velocityRange\":[40,40]}},{\"id\":\"piano_C1vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[24,24],\"velocityRange\":[100,100]}},{\"id\":\"piano_A4vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[69,69],\"velocityRange\":[40,40]}},{\"id\":\"piano_A5vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[81,81],\"velocityRange\":[100,100]}},{\"id\":\"piano_C3vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[48,48],\"velocityRange\":[100,100]}},{\"id\":\"piano_D#1vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[27,27],\"velocityRange\":[40,40]}},{\"id\":\"piano_C2vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[36,36],\"velocityRange\":[40,40]}},{\"id\":\"piano_B1vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[35,35],\"velocityRange\":[100,100]}},{\"id\":\"piano_A7vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[105,105],\"velocityRange\":[100,100]}},{\"id\":\"piano_A6vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[93,93],\"velocityRange\":[40,40]}},{\"id\":\"piano_F#3vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[54,54],\"velocityRange\":[100,100]}},{\"id\":\"piano_F#2vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[42,42],\"velocityRange\":[40,40]}},{\"id\":\"piano_A2vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[45,45],\"velocityRange\":[40,40]}},{\"id\":\"piano_A3vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[57,57],\"velocityRange\":[100,100]}},{\"id\":\"piano_C6vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[84,84],\"velocityRange\":[40,40]}},{\"id\":\"piano_B5vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[83,83],\"velocityRange\":[100,100]}},{\"id\":\"piano_D#4vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[63,63],\"velocityRange\":[100,100]}},{\"id\":\"piano_C7vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[96,96],\"velocityRange\":[100,100]}},{\"id\":\"piano_D#5vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[75,75],\"velocityRange\":[40,40]}},{\"id\":\"piano_F#6vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[90,90],\"velocityRange\":[40,40]}},{\"id\":\"piano_F#7vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[102,102],\"velocityRange\":[100,100]}},{\"id\":\"piano_F#5vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[78,78],\"velocityRange\":[100,100]}},{\"id\":\"piano_F#4vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[66,66],\"velocityRange\":[40,40]}},{\"id\":\"piano_A1vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[33,33],\"velocityRange\":[100,100]}},{\"id\":\"piano_A0vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[21,21],\"velocityRange\":[40,40]}},{\"id\":\"piano_D#7vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[99,99],\"velocityRange\":[40,40]}},{\"id\":\"piano_C8vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[108,108],\"velocityRange\":[40,40]}},{\"id\":\"piano_C5vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[72,72],\"velocityRange\":[100,100]}},{\"id\":\"piano_D#6vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[87,87],\"velocityRange\":[100,100]}},{\"id\":\"piano_B7vH\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[107,107],\"velocityRange\":[100,100]}},{\"id\":\"piano_C4vL\",\"role\":\"primary\",\"constraints\":{\"noteRange\":[60,60],\"velocityRange\":[40,40]}}],\"articulations\":[{\"id\":\"art_piano\",\"name\":\"piano\",\"type\":\"velocity-layer\",\"samples\":[\"piano_A5vL\",\"piano_C1vL\",\"piano_D#2vL\",\"piano_F#1vL\",\"piano_F#3vL\",\"piano_A7vL\",\"piano_C3vL\",\"piano_F#7vL\",\"piano_C7vL\",\"piano_D#4vL\",\"piano_A3vL\",\"piano_D#6vL\",\"piano_C5vL\",\"piano_A1vL\",\"piano_F#5vL\",\"piano_D#3vL\",\"piano_A4vL\",\"piano_D#1vL\",\"piano_C2vL\",\"piano_A6vL\",\"piano_F#2vL\",\"piano_A2vL\",\"piano_C6vL\",\"piano_D#5vL\",\"piano_F#6vL\",\"piano_F#4vL\",\"piano_A0vL\",\"piano_D#7vL\",\"piano_C8vL\",\"piano_C4vL\"],\"parameters\":{\"attack\":0.01,\"release\":0.3,\"brightness\":0.5,\"room\":0.2,\"warmth\":0.5,\"presence\":0.5}},{\"id\":\"art_forte\",\"name\":\"forte\",\"type\":\"velocity-layer\",\"samples\":[\"piano_A4vH\",\"piano_B2vH\",\"piano_D#3vH\",\"piano_F#2vH\",\"piano_A6vH\",\"piano_C2vH\",\"piano_D#1vH\",\"piano_B0vH\",\"piano_F#6vH\",\"piano_D#5vH\",\"piano_B4vH\",\"piano_C6vH\",\"piano_B6vH\",\"piano_C8vH\",\"piano_D#7vH\",\"piano_A0vH\",\"piano_F#4vH\",\"piano_F#1vH\",\"piano_D#2vH\",\"piano_B3vH\",\"piano_C1vH\",\"piano_A5vH\",\"piano_C3vH\",\"piano_B1vH\",\"piano_A7vH\",\"piano_F#3vH\",\"piano_A3vH\",\"piano_B5vH\",\"piano_D#4vH\",\"piano_C7vH\",\"piano_F#7vH\",\"piano_F#5vH\",\"piano_A1vH\",\"piano_C5vH\",\"piano_D#6vH\",\"piano_B7vH\"],\"parameters\":{\"attack\":0.01,\"release\":0.3,\"brightness\":0.5,\"room\":0.2,\"warmth\":0.5,\"presence\":0.5}}],\"mapping\":{\"strategy\":\"velocityLayered\",\"zones\":[{\"velocityRange\":[0,70],\"sampleSetIds\":[\"art_piano\"]},{\"velocityRange\":[71,127],\"sampleSetIds\":[\"art_forte\"]}]}}",
+    "buildReport": {
+      "decisions": [
+        {
+          "type": "sampleSetCreated",
+          "reason": "Created sample set for articulation art_piano",
+          "context": {
+            "articulationId": "art_piano",
+            "sampleCount": 30
+          }
+        },
+        {
+          "type": "sampleSetCreated",
+          "reason": "Created sample set for articulation art_forte",
+          "context": {
+            "articulationId": "art_forte",
+            "sampleCount": 36
+          }
+        }
+      ],
+      "warnings": [],
+      "errors": []
+    }
+  }
+}

@@ -12,10 +12,10 @@ modern-sampler-format/
 │   ├── msf-validator/      # IIS validation & repair
 │   ├── msf-runtime/        # MSF playback engine
 │   ├── inventory/          # Inventory ingestion system
-│   └── intent-generator/   # AI-assisted intent generation
+│   ├── intent-generator/   # AI-assisted intent generation
+│   └── audition-harness/   # Simple runtime for auditioning MSF
 ├── apps/
 │   ├── refinement-ui/      # Next.js UI for structured refinement
-│   ├── audition-harness/   # Simple runtime for auditioning MSF
 │   └── docs/              # Documentation site
 ```
 
@@ -60,7 +60,7 @@ Playback engine that processes MSF instruments and renders audio from MIDI event
 - `renderToWAV()` - Render audio to WAV file
 - `calculateMetrics()` - Calculate audio metrics
 
-### @msf/inventory
+### @msf/builder
 
 Canonical inventory system for managing audio samples.
 
@@ -77,6 +77,16 @@ AI-assisted generation of Instrument Intent Specs from natural language.
 **Key Functions:**
 - `generateIntent(prompt, inventory, options)` - Generate IIS
 - `buildConstrainedPrompt()` - Build AI prompt with constraints
+
+### @msf/audition-harness
+
+Simple runtime for auditioning MSF instruments. Renders MIDI test clips to WAV files for immediate audition and comparison.
+
+**Key Functions:**
+- `audition(instrument, clips, options)` - Render MSF instrument with MIDI test clips
+- `DEFAULT_TEST_CLIPS` - Predefined test clips for instrument audition
+- Supports audio metrics (loudness, peak, spectrum)
+- CLI entry point for direct usage
 
 ## Data Flow
 

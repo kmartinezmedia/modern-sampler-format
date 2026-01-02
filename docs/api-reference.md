@@ -132,11 +132,13 @@ function calculateMetrics(
 ): { loudness: number; peak: number }
 ```
 
-## @msf/inventory
+## @msf/builder
+
+Tools for building and managing MSF packages for consumption.
 
 ### Inventory
 
-Canonical inventory system.
+Canonical inventory system for managing samples.
 
 ```typescript
 class Inventory {
@@ -148,9 +150,34 @@ class Inventory {
 }
 ```
 
-### scanDirectory
+### Package Building
 
-Scan directory and build inventory.
+```typescript
+// Auto-generate MSF from samples directory
+function autoGenerateMSF(
+  samplesDir: string,
+  instrumentName: string,
+  options?: { groupByVelocity?: boolean; velocityThreshold?: number }
+): Promise<MSFInstrument>
+
+// Scaffold package structure
+function scaffoldMSFPackage(options: ScaffoldOptions): Promise<void>
+
+// Load MSF from npm package
+function loadMSFFromPackage(
+  packageName: string,
+  instrumentPath: string
+): Promise<MSFInstrument>
+
+// Extract data from compiled MSF
+function extractInventoryFromMSF(msf: MSFInstrument): Inventory
+function extractIntentFromMSF(
+  msf: MSFInstrument,
+  parameterOverrides?: Record<string, unknown>
+): InstrumentIntent
+```
+
+### Directory Scanning
 
 ```typescript
 function scanDirectory(
@@ -166,6 +193,7 @@ function scanDirectory(
 - `SearchCriteria`
 - `InventoryStats`
 - `ScanOptions`
+- `ScaffoldOptions`
 
 ## @msf/intent-generator
 

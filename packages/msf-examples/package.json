@@ -1,0 +1,33 @@
+{
+  "name": "@msf/examples",
+  "version": "0.1.0",
+  "type": "module",
+  "author": "Katherine Martinez",
+  "license": "MIT",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./upright-piano": {
+      "types": "./dist/upright-piano/index.d.mts",
+      "import": "./dist/upright-piano/index.mjs"
+    },
+    "./*.mjs": {
+      "types": "./dist/*/index.d.mts",
+      "import": "./dist/*/index.mjs"
+    },
+    "./*.wav": "./dist/*.wav"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "bun run build:samples && tsdown",
+    "build:samples": "bun scripts/convert-samples.ts",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.5",
+    "@msf/cli": "workspace:*",
+    "typescript": "^5.9.3"
+  }
+}

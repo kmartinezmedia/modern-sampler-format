@@ -18,6 +18,26 @@ MSF succeeds only if it is:
 - **Inspectable** — readable, diff-able, testable artifacts
 - **Practical** — supported by tooling, not just a spec
 
+### No Backward Compatibility
+
+**MSF RULE: No backward compatibility. Ever.**
+
+MSF is a compiled format. All decisions are made at compile time. Runtime must never guess, infer, or fall back to legacy behavior.
+
+- Regions are **REQUIRED** (not optional)
+- Missing regions = validation error (not warning)
+- No "closest sample" heuristics
+- No runtime inference
+- Fail fast if data is missing or incomplete
+
+If you need to support old formats, migrate them at compile time, not at runtime. MSF is not a configuration language — it's a fully-resolved runtime model.
+
+This rule is enforced at multiple levels:
+- **Type system**: Regions are required in `MSFInstrument`
+- **Validator**: Missing regions = validation error
+- **Runtime**: Constructor throws if regions are missing
+- **Compiler**: Always generates regions from sparse samples
+
 ## Monorepo Structure
 
 This is a monorepo managed with Bun workspaces and Turborepo:
@@ -26,7 +46,6 @@ This is a monorepo managed with Bun workspaces and Turborepo:
 modern-sampler-format/
 ├── apps/
 │   ├── refinement-ui/      # Next.js UI for structured refinement
-│   ├── audition-harness/   # Simple runtime for auditioning MSF
 │   └── docs/               # Documentation site (Next.js)
 ├── packages/
 │   ├── msf-core/           # Core MSF format definitions
@@ -34,7 +53,8 @@ modern-sampler-format/
 │   ├── msf-validator/      # IIS validation & repair
 │   ├── msf-runtime/        # MSF playback engine
 │   ├── inventory/          # Inventory ingestion system
-│   └── intent-generator/   # AI-assisted intent generation
+│   ├── intent-generator/   # AI-assisted intent generation
+│   └── audition-harness/   # Simple runtime for auditioning MSF
 ├── docs/                   # Documentation markdown files
 └── package.json
 ```

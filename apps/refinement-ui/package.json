@@ -4,25 +4,24 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "clean": "rm -rf .next dist out",
-    "lint": "next lint",
+    "dev": "bun src/server.ts",
+    "start": "bun src/server.ts",
+    "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@msf/core": "workspace:*",
+    "@julusian/midi": "^3.6.1",
     "@msf/compiler": "workspace:*",
-    "@msf/validator": "workspace:*",
-    "next": "^16.1.1",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "@msf/core": "workspace:*",
+    "@msf/examples": "workspace:*",
+    "@msf/runtime": "workspace:*",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@types/node": "^25.0.3",
-    "@types/react": "^19.2.7",
-    "@types/react-dom": "^19.2.3",
-    "typescript": "^5.9.3"
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "bun-types": "latest",
+    "typescript": "^5.7.0"
   }
 }

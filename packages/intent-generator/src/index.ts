@@ -7,7 +7,7 @@
  */
 
 import type { InstrumentIntent } from "@msf/compiler";
-import type { Inventory } from "@msf/inventory";
+import type { Inventory } from "@msf/builder";
 
 /**
  * Generation Prompt

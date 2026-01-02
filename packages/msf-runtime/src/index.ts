@@ -1,416 +1,397 @@
 /**
- * MSF Runtime — MSF Instrument Playback Engine
+ * MSF Runtime — Minimal Playback Engine
  *
- * Processes MSF instruments and renders audio from MIDI events.
- * Provides deterministic playback behavior as specified by MSF.
+ * Pure execution of pre-compiled MSF instruments.
+ * No decisions, no calculations, just lookups and playback.
  */
 
-import type {
-  MSFInstrument,
-  Sample,
-  SampleSet,
-  PerformanceRule,
-} from "@msf/core";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+import type { MSFInstrument, Sample, NotePlaybackData, MsfRegion } from "@msf/core";
 
-/**
- * Active voice state
- */
-interface ActiveVoice {
+/** Active voice - minimal state for playback */
+interface Voice {
   note: number;
-  velocity: number;
-  startTime: number;
-  sample: Sample;
-  sampleSet: SampleSet;
-  position: number; // Current playback position in samples
+  audioBuffer: Float32Array;
+  channels: number;
+  position: number;
   gain: number;
-  articulationId?: string;
+  playback: NotePlaybackData;
+  resampleRatio: number;
+  totalSourceFrames: number;
+  isReleasing: boolean;
+  releasePosition: number;
+  releaseFrames: number;
 }
 
-/**
- * Runtime state
- */
+/** MSF Runtime - executes pre-compiled instruments */
 export class MSFRuntime {
   private instrument: MSFInstrument;
   private sampleRate: number;
-  private activeVoices = new Map<number, ActiveVoice>();
-  private roundRobinState = new Map<string, number>();
+  private voices = new Map<number, Voice>();
+  private audioCache = new Map<string, Float32Array>();
+  private basePath: string;
+  private sampleIndex = new Map<string, Sample>();
 
-  constructor(instrument: MSFInstrument, sampleRate = 44100) {
+  constructor(instrument: MSFInstrument, sampleRate: number, basePath: string) {
+    if (!instrument.regions?.length) {
+      throw new Error("MSFRuntime: No regions. Recompile instrument.");
+    }
+    if (!basePath) {
+      throw new Error("MSFRuntime: basePath is required.");
+    }
+
     this.instrument = instrument;
     this.sampleRate = sampleRate;
+    this.basePath = basePath;
+
+    // Build sample index for O(1) lookup
+    for (const set of instrument.sampleSets) {
+      for (const sample of set.samples) {
+        this.sampleIndex.set(sample.id, sample);
+      }
+    }
   }
 
-  /**
-   * Process a note-on event
-   */
-  noteOn(note: number, velocity: number, _time = 0): void {
-    // Find matching key and velocity zones
-    const sampleSet = this.findSampleSet(note, velocity);
+  async noteOn(note: number, velocity: number): Promise<void> {
+    // Use pre-computed lookup table for O(1) region selection
+    const region = this.lookupRegion(note, velocity);
+    if (!region) return;
 
-    if (!sampleSet) {
-      return; // No matching sample set
+    const playback = region.notePlayback?.[note];
+    if (!playback) return;
+
+    const sample = this.sampleIndex.get(region.sampleId);
+    if (!sample) return;
+
+    // Load audio (cached)
+    let audio = this.audioCache.get(sample.path);
+    if (!audio) {
+      audio = await this.loadAudio(sample);
+      if (!audio) return;
+      this.audioCache.set(sample.path, audio);
     }
 
-    // Select sample (with round-robin if configured)
-    const sample = this.selectSample(sampleSet, note, velocity);
+    const channels = sample.metadata.channels || 2;
+    const sourceSampleRate = sample.metadata.sampleRate || this.sampleRate;
 
-    if (!sample) {
-      return; // No sample available
-    }
+    // Combine velocity gain with pre-computed presence gain from compiled data
+    const velocityGain = velocity / 127;
+    const presenceGain = playback.gain ?? 1.0;
+    const combinedGain = velocityGain * presenceGain;
 
-    // Create active voice
-    const voice: ActiveVoice = {
+    const resampleRatio = (sourceSampleRate / this.sampleRate) * playback.playbackRate;
+
+    this.voices.set(note, {
       note,
-      velocity,
-      startTime: _time,
-      sample,
-      sampleSet,
+      audioBuffer: audio,
+      channels,
       position: 0,
-      gain: velocity / 127, // Simple velocity to gain mapping
-      articulationId: this.findArticulationId(sampleSet.id),
-    };
-
-    this.activeVoices.set(note, voice);
+      gain: combinedGain,
+      playback,
+      resampleRatio,
+      totalSourceFrames: audio.length / channels,
+      isReleasing: false,
+      releasePosition: 0,
+      releaseFrames: Math.floor(playback.fadeOutFrames * (this.sampleRate / 44100)),
+    });
   }
 
-  /**
-   * Process a note-off event
-   */
-  noteOff(note: number, _time = 0): void {
-    this.activeVoices.delete(note);
+  /** O(1) region lookup using pre-computed table */
+  private lookupRegion(note: number, velocity: number): MsfRegion | null {
+    const lookup = this.instrument.noteLookup;
+
+    // Fallback to legacy search if no lookup table (backward compat)
+    if (!lookup) {
+      return this.legacyRegionSearch(note, velocity);
+    }
+
+    const layers = lookup.table[note];
+    if (!layers || layers.length === 0) return null;
+
+    // Find matching velocity layer (layers sorted by velocityMin ascending)
+    // Pick the highest velocityMin that's <= velocity
+    let match = layers[0]!;
+    for (const layer of layers) {
+      if (velocity >= layer.velocityMin) {
+        match = layer;
+      } else {
+        break;
+      }
+    }
+
+    return this.instrument.regions[match.regionIndex] ?? null;
   }
 
-  /**
-   * Render audio samples
-   *
-   * @param frameCount Number of frames to render
-   * @returns Float32Array of interleaved stereo samples [L, R, L, R, ...]
-   */
+  /** Legacy fallback for instruments without lookup table */
+  private legacyRegionSearch(note: number, velocity: number): MsfRegion | null {
+    const candidates = this.instrument.regions.filter(
+      (r) =>
+        note >= r.loKey &&
+        note <= r.hiKey &&
+        (r.loVel == null || velocity >= r.loVel) &&
+        (r.hiVel == null || velocity <= r.hiVel)
+    );
+    if (candidates.length === 0) return null;
+
+    // Return closest pitch key center
+    candidates.sort(
+      (a, b) => Math.abs(note - a.pitchKeyCenter) - Math.abs(note - b.pitchKeyCenter)
+    );
+    return candidates[0] ?? null;
+  }
+
+  noteOff(note: number): void {
+    const voice = this.voices.get(note);
+    if (voice) {
+      voice.isReleasing = true;
+      voice.releasePosition = 0;
+    }
+  }
+
   render(frameCount: number): Float32Array {
-    const output = new Float32Array(frameCount * 2); // Stereo
+    const output = new Float32Array(frameCount * 2);
+    const scale = this.sampleRate / 44100;
 
-    for (const voice of this.activeVoices.values()) {
-      // Simple sample playback (would load actual audio in real implementation)
-      // This is a placeholder that generates silence
-      // In a real implementation, you would:
-      // 1. Load the audio file from voice.sample.path
-      // 2. Resample if needed
-      // 3. Apply gain and any modulation
-      // 4. Mix into output buffer
-
-      const sampleFrames = Math.floor(
-        voice.sample.metadata.duration * this.sampleRate
-      );
+    for (const voice of this.voices.values()) {
+      const { audioBuffer, channels, resampleRatio, totalSourceFrames, playback, gain } = voice;
+      const fadeIn = Math.floor(playback.fadeInFrames * scale);
+      const fadeOut = Math.floor(playback.fadeOutFrames * scale);
 
       for (let i = 0; i < frameCount; i++) {
-        const globalPos = voice.position + i;
+        const pos = voice.position + i;
+        const srcPos = pos * resampleRatio;
 
-        if (globalPos < sampleFrames) {
-          // Placeholder: would read from actual audio buffer
-          const sampleValue = 0; // Would be: audioBuffer[globalPos] * voice.gain
-          const leftIdx = i * 2;
-          const rightIdx = i * 2 + 1;
-          if (leftIdx < output.length && output[leftIdx] !== undefined) {
-            output[leftIdx] = (output[leftIdx] ?? 0) + sampleValue; // Left channel
-          }
-          if (rightIdx < output.length && output[rightIdx] !== undefined) {
-            output[rightIdx] = (output[rightIdx] ?? 0) + sampleValue; // Right channel
-          }
+        if (srcPos >= totalSourceFrames) continue;
+
+        // Envelope: fade in, fade out at end, release fade
+        let env = 1.0;
+
+        if (pos < fadeIn) {
+          env = 0.5 * (1 - Math.cos((pos / fadeIn) * Math.PI));
+        }
+
+        const remaining = (totalSourceFrames - srcPos) / resampleRatio;
+        if (remaining < fadeOut) {
+          env = Math.min(env, 0.5 * (1 + Math.cos((1 - remaining / fadeOut) * Math.PI)));
+        }
+
+        if (voice.isReleasing) {
+          const rel = voice.releasePosition / voice.releaseFrames;
+          env = Math.min(env, 0.5 * (1 + Math.cos(rel * Math.PI)));
+          voice.releasePosition++;
+        }
+
+        // Interpolated sample read
+        const frame = Math.floor(srcPos);
+        const frac = srcPos - frame;
+        const idx = frame * channels;
+
+        if (channels === 2) {
+          const l0 = audioBuffer[idx] ?? 0;
+          const l1 = audioBuffer[idx + 2] ?? l0;
+          const r0 = audioBuffer[idx + 1] ?? 0;
+          const r1 = audioBuffer[idx + 3] ?? r0;
+          output[i * 2] += (l0 + (l1 - l0) * frac) * gain * env;
+          output[i * 2 + 1] += (r0 + (r1 - r0) * frac) * gain * env;
+        } else {
+          const m0 = audioBuffer[idx] ?? 0;
+          const m1 = audioBuffer[idx + 1] ?? m0;
+          const mono = (m0 + (m1 - m0) * frac) * gain * env;
+          output[i * 2] += mono;
+          output[i * 2 + 1] += mono;
         }
       }
 
       voice.position += frameCount;
 
-      // Remove voice if finished
-      if (voice.position >= sampleFrames && voice.note !== undefined) {
-        this.activeVoices.delete(voice.note);
+      // Remove finished voices
+      const done = voice.position * voice.resampleRatio >= totalSourceFrames;
+      const releaseDone = voice.isReleasing && voice.releasePosition >= voice.releaseFrames;
+      if (done || releaseDone) {
+        this.voices.delete(voice.note);
       }
     }
 
     return output;
   }
 
-  /**
-   * Find sample set for given note and velocity
-   */
-  private findSampleSet(note: number, velocity: number): SampleSet | undefined {
-    // Find matching key zone
-    const keyZone = this.instrument.mapping.keyZones.find(
-      (zone: { range: [number, number]; sampleSetId: string }) =>
-        note >= zone.range[0] && note <= zone.range[1]
-    );
-
-    if (!keyZone) {
-      return undefined;
-    }
-
-    // Find matching velocity zone (if any)
-    const velocityZone = this.instrument.mapping.velocityZones.find(
-      (zone: {
-        range: [number, number];
-        sampleSetId: string;
-      }) =>
-        velocity >= zone.range[0] &&
-        velocity <= zone.range[1] &&
-        zone.sampleSetId === keyZone.sampleSetId
-    );
-
-    const sampleSetId = velocityZone?.sampleSetId || keyZone.sampleSetId;
-
-    return this.instrument.sampleSets.find(
-      (set: { id: string }) => set.id === sampleSetId
-    );
-  }
-
-  /**
-   * Select sample from sample set (with round-robin)
-   */
-  private selectSample(
-    sampleSet: SampleSet,
-    note: number,
-    velocity: number
-  ): Sample | undefined {
-    let candidates = sampleSet.samples;
-
-    // Filter by note if specified
-    if (candidates.length > 1) {
-      const noteMatch = candidates.find((s: Sample) => s.note === note);
-      if (noteMatch) {
-        candidates = [noteMatch];
-      }
-    }
-
-    // Filter by velocity if specified
-    if (candidates.length > 1) {
-      const velMatch = candidates.find(
-        (s: Sample) => s.velocity === velocity
-      );
-      if (velMatch) {
-        candidates = [velMatch];
-      }
-    }
-
-    if (candidates.length === 0) {
-      return undefined;
-    }
-
-    if (candidates.length === 1) {
-      return candidates[0];
-    }
-
-    // Apply round-robin if configured
-    if (sampleSet.roundRobin) {
-      const stateKey = `${sampleSet.id}_${note}`;
-      let index = this.roundRobinState.get(stateKey) || 0;
-
-      if (sampleSet.roundRobin.strategy === "random") {
-        // Seeded random for deterministic behavior
-        const seed = (sampleSet.roundRobin.seed || 0) + index;
-        index = Math.floor(
-          (Math.sin(seed) * 10000) % 1 * candidates.length
-        );
-      } else {
-        // Sequential
-        index = index % candidates.length;
-      }
-
-      this.roundRobinState.set(stateKey, index + 1);
-      return candidates[index];
-    }
-
-    // Default: return first matching sample
-    return candidates[0];
-  }
-
-  /**
-   * Find articulation ID for a sample set
-   */
-  private findArticulationId(sampleSetId: string): string | undefined {
-    const keyZone = this.instrument.mapping.keyZones.find(
-      (zone: { sampleSetId: string; articulationId?: string }) =>
-        zone.sampleSetId === sampleSetId
-    );
-    return keyZone?.articulationId;
-  }
-
-  /**
-   * Process performance rules
-   */
-  processRules(
-    event: "noteOn" | "noteOff",
-    note: number,
-    velocity: number
-  ): void {
-    for (const rule of this.instrument.rules) {
-      if (rule.trigger.type === event) {
-        // Execute rule action
-        this.executeRuleAction(rule, note, velocity);
-      }
-    }
-  }
-
-  /**
-   * Execute a rule action
-   */
-  private executeRuleAction(
-    rule: PerformanceRule,
-    _note: number,
-    _velocity: number
-  ): void {
-    switch (rule.action.type) {
-      case "switchArticulation":
-        // Would switch active articulation
-        break;
-      case "modulate":
-        // Would apply modulation
-        break;
-      case "selectSample":
-        // Would change sample selection
-        break;
-      default:
-        // Custom action
-        break;
-    }
-  }
-
-  /**
-   * Reset runtime state
-   */
   reset(): void {
-    this.activeVoices.clear();
-    this.roundRobinState.clear();
+    this.voices.clear();
+  }
+
+  private async loadAudio(sample: Sample): Promise<Float32Array | undefined> {
+    const path = join(this.basePath, sample.path);
+    const ext = sample.path.split(".").pop()?.toLowerCase();
+
+    if (ext === "wav") {
+      return this.decodeWAV(path, sample.metadata);
+    }
+
+    console.error(`Unsupported audio format: ${ext}. Convert to WAV at compile time.`);
+    return undefined;
+  }
+
+  /**
+   * Decode WAV file to Float32Array.
+   * Supports 16-bit and 24-bit PCM.
+   */
+  private async decodeWAV(
+    path: string,
+    meta: { channels: number }
+  ): Promise<Float32Array> {
+    const buf = await readFile(path);
+    const view = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
+
+    // Parse WAV header
+    // Skip RIFF header (12 bytes), find "fmt " and "data" chunks
+    let offset = 12;
+    let bitsPerSample = 16;
+    let dataStart = 0;
+    let dataSize = 0;
+
+    while (offset < buf.byteLength - 8) {
+      const chunkId = String.fromCharCode(
+        buf[offset]!, buf[offset + 1]!, buf[offset + 2]!, buf[offset + 3]!
+      );
+      const chunkSize = view.getUint32(offset + 4, true);
+
+      if (chunkId === "fmt ") {
+        bitsPerSample = view.getUint16(offset + 22, true);
+      } else if (chunkId === "data") {
+        dataStart = offset + 8;
+        dataSize = chunkSize;
+        break;
+      }
+
+      offset += 8 + chunkSize;
+      // Word-align
+      if (chunkSize % 2 !== 0) offset++;
+    }
+
+    if (dataStart === 0 || dataSize === 0) {
+      throw new Error(`Invalid WAV file: ${path}`);
+    }
+
+    const bytesPerSample = bitsPerSample / 8;
+    const sampleCount = Math.floor(dataSize / bytesPerSample);
+    const samples = new Float32Array(sampleCount);
+
+    if (bitsPerSample === 16) {
+      for (let i = 0; i < sampleCount; i++) {
+        const int16 = view.getInt16(dataStart + i * 2, true);
+        samples[i] = int16 / 32768;
+      }
+    } else if (bitsPerSample === 24) {
+      for (let i = 0; i < sampleCount; i++) {
+        const idx = dataStart + i * 3;
+        const b0 = buf[idx]!;
+        const b1 = buf[idx + 1]!;
+        const b2 = buf[idx + 2]!;
+        // Sign-extend 24-bit to 32-bit
+        let int24 = (b2 << 16) | (b1 << 8) | b0;
+        if (int24 & 0x800000) int24 |= 0xff000000;
+        samples[i] = int24 / 8388608;
+      }
+    } else if (bitsPerSample === 32) {
+      // 32-bit float
+      for (let i = 0; i < sampleCount; i++) {
+        samples[i] = view.getFloat32(dataStart + i * 4, true);
+      }
+    } else {
+      throw new Error(`Unsupported bit depth: ${bitsPerSample}`);
+    }
+
+    return samples;
   }
 }
 
-/**
- * Render audio to WAV file
- */
+/** Render to WAV buffer */
+export async function renderToWAVBuffer(
+  runtime: MSFRuntime,
+  duration: number,
+  sampleRate: number
+): Promise<Uint8Array> {
+  const frames = Math.floor(duration * sampleRate);
+  const buffer = new Float32Array(frames * 2);
+
+  let offset = 0;
+  while (offset < frames) {
+    const chunk = Math.min(4096, frames - offset);
+    buffer.set(runtime.render(chunk), offset * 2);
+    offset += chunk;
+  }
+
+  // Apply fade-out at the end of the rendered duration to prevent clicks
+  const fadeOutFrames = Math.min(Math.floor(0.05 * sampleRate), frames); // 50ms fade
+  for (let i = 0; i < fadeOutFrames; i++) {
+    const fadeStart = frames - fadeOutFrames;
+    const env = 0.5 * (1 + Math.cos((i / fadeOutFrames) * Math.PI));
+    buffer[(fadeStart + i) * 2] *= env;
+    buffer[(fadeStart + i) * 2 + 1] *= env;
+  }
+
+  return toWAV(buffer, sampleRate);
+}
+
+/** Render to WAV file */
 export async function renderToWAV(
   runtime: MSFRuntime,
   duration: number,
   sampleRate: number,
-  outputPath: string
+  path: string
 ): Promise<void> {
-  const totalFrames = Math.floor(duration * sampleRate);
-  const buffer = new Float32Array(totalFrames * 2); // Stereo
-
-  // Render in chunks
-  const chunkSize = 4096;
-  let offset = 0;
-
-  while (offset < totalFrames) {
-    const framesToRender = Math.min(chunkSize, totalFrames - offset);
-    const chunk = runtime.render(framesToRender);
-
-    buffer.set(chunk, offset * 2);
-    offset += framesToRender;
+  const wav = await renderToWAVBuffer(runtime, duration, sampleRate);
+  if (typeof Bun !== "undefined") {
+    await Bun.write(path, wav);
   }
-
-  // Write WAV file
-  await writeWAVFile(buffer, sampleRate, outputPath);
 }
 
-/**
- * Write Float32Array to WAV file
- */
-async function writeWAVFile(
-  samples: Float32Array,
-  sampleRate: number,
-  outputPath: string
-): Promise<void> {
-  // Convert float32 (-1 to 1) to int16
-  const int16Samples = new Int16Array(samples.length);
+/** Convert Float32 to WAV */
+function toWAV(samples: Float32Array, sampleRate: number): Uint8Array {
+  const int16 = new Int16Array(samples.length);
   for (let i = 0; i < samples.length; i++) {
-    const sample = Math.max(-1, Math.min(1, samples[i] ?? 0));
-    int16Samples[i] = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
+    const s = Math.max(-1, Math.min(1, samples[i] ?? 0));
+    int16[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
   }
 
-  // WAV header
-  const numChannels = 2; // Stereo
-  const bitsPerSample = 16;
-  const byteRate = (sampleRate ?? 44100) * numChannels * (bitsPerSample / 8);
-  const blockAlign = numChannels * (bitsPerSample / 8);
-  const dataSize = int16Samples.length * 2;
-  const fileSize = 36 + dataSize;
-
-  const header = new ArrayBuffer(44);
-  const view = new DataView(header);
+  const dataSize = int16.length * 2;
+  const wav = new Uint8Array(44 + dataSize);
+  const view = new DataView(wav.buffer);
 
   // RIFF header
-  view.setUint32(0, 0x46464952, true); // "RIFF"
-  view.setUint32(4, fileSize, true);
-  view.setUint32(8, 0x45564157, true); // "WAVE"
+  view.setUint32(0, 0x46464952, true);  // "RIFF"
+  view.setUint32(4, 36 + dataSize, true);
+  view.setUint32(8, 0x45564157, true);  // "WAVE"
 
   // fmt chunk
   view.setUint32(12, 0x20746d66, true); // "fmt "
-  view.setUint32(16, 16, true); // chunk size
-  view.setUint16(20, 1, true); // audio format (PCM)
-  view.setUint16(22, numChannels, true);
-  view.setUint32(24, sampleRate ?? 44100, true);
-  view.setUint32(28, byteRate, true);
-  view.setUint16(32, blockAlign, true);
-  view.setUint16(34, bitsPerSample, true);
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);          // PCM
+  view.setUint16(22, 2, true);          // stereo
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 4, true);
+  view.setUint16(32, 4, true);
+  view.setUint16(34, 16, true);
 
   // data chunk
   view.setUint32(36, 0x61746164, true); // "data"
   view.setUint32(40, dataSize, true);
 
-  // Combine header and samples
-  const wavBuffer = new Uint8Array(44 + dataSize);
-  wavBuffer.set(new Uint8Array(header), 0);
-  wavBuffer.set(
-    new Uint8Array(int16Samples.buffer),
-    44
-  );
-
-  // Write file using Bun's file API
-  // Note: This requires Bun runtime
-  if (typeof Bun !== "undefined") {
-    await Bun.write(outputPath, wavBuffer);
-  } else {
-    // Fallback for non-Bun environments would use Node.js fs
-    throw new Error("Bun runtime required for WAV file writing");
-  }
+  wav.set(new Uint8Array(int16.buffer), 44);
+  return wav;
 }
 
-/**
- * Calculate audio metrics
- */
-export function calculateMetrics(samples: Float32Array): {
-  loudness: number;
-  peak: number;
-} {
-  // Simple peak calculation
-  let peak = 0;
+/** Calculate audio metrics */
+export function calculateMetrics(samples: Float32Array): { loudness: number; peak: number } {
+  let peak = 0, sum = 0;
   for (let i = 0; i < samples.length; i++) {
-    const sample = samples[i];
-    if (sample !== undefined) {
-      const abs = Math.abs(sample);
-      if (abs > peak) {
-        peak = abs;
-      }
-    }
+    const s = samples[i] ?? 0;
+    peak = Math.max(peak, Math.abs(s));
+    sum += s * s;
   }
-
-  // Convert peak to dB
-  const peakDb = peak > 0 ? 20 * Math.log10(peak) : Number.NEGATIVE_INFINITY;
-
-  // Simplified LUFS calculation (would use ITU-R BS.1770 in real implementation)
-  // This is a placeholder that estimates LUFS from RMS
-  let rms = 0;
-  for (let i = 0; i < samples.length; i++) {
-    const sample = samples[i];
-    if (sample !== undefined) {
-      rms += sample * sample;
-    }
-  }
-  rms = Math.sqrt(rms / samples.length);
-  const loudness =
-    rms > 0 ? 20 * Math.log10(rms) - 23 : Number.NEGATIVE_INFINITY; // Rough LUFS estimate
-
   return {
-    loudness,
-    peak: peakDb,
+    peak: peak > 0 ? 20 * Math.log10(peak) : -Infinity,
+    loudness: sum > 0 ? 20 * Math.log10(Math.sqrt(sum / samples.length)) - 23 : -Infinity
   };
 }
-

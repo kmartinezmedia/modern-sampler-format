@@ -8,7 +8,7 @@ The MSF compiler transforms Instrument Intent Spec (IIS) into complete MSF instr
 
 ```typescript
 import { compile } from "@msf/compiler";
-import { Inventory } from "@msf/inventory";
+import { Inventory } from "@msf/builder";
 
 const intent: InstrumentIntent = {
   // ... your intent

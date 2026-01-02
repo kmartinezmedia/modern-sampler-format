@@ -5,7 +5,7 @@
 ### 1. Create Inventory
 
 ```typescript
-import { Inventory, scanDirectory } from "@msf/inventory";
+import { Inventory, scanDirectory } from "@msf/builder";
 
 const inventory = await scanDirectory("./samples", {
   extensions: [".wav", ".aiff"],
@@ -77,7 +77,7 @@ await renderToWAV(runtime, 2.0, 44100, "./output/chord.wav");
 ## Complete Workflow
 
 ```typescript
-import { Inventory, scanDirectory } from "@msf/inventory";
+import { Inventory, scanDirectory } from "@msf/builder";
 import { generateIntent } from "@msf/intent-generator";
 import { validateIntent } from "@msf/validator";
 import { compile } from "@msf/compiler";

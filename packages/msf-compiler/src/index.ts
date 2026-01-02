@@ -9,6 +9,17 @@ import type {
   MSFInstrument,
   BuildReport,
   BuildDecision,
+  MsfRegion,
+  MidiNote,
+  NotePlaybackData,
+  NoteLookup,
+  NoteLookupEntry,
+} from "@msf/core";
+import {
+  computeKeyRanges,
+  calculateTransposition,
+  isExcessiveTransposition,
+  computePlaybackRate,
 } from "@msf/core";
 
 /**
@@ -138,6 +149,7 @@ export async function compile(
   // Resolve samples from inventory
   const sampleSets: MSFInstrument["sampleSets"] = [];
   const sampleSetMap = new Map<string, number>();
+  const regions: MsfRegion[] = [];
 
   for (const articulation of intent.articulations) {
     const samples = articulation.samples
@@ -167,21 +179,211 @@ export async function compile(
     );
     const hasRoundRobin = roundRobinSamples.length > 0;
 
-    sampleSets.push({
-      id: sampleSetId,
-      samples: samples.map((sample) => ({
+    // Compute regions from sparse samples using deterministic algorithm
+    // Extract root notes (pitch centers) from samples
+    const rootNotes: MidiNote[] = samples
+      .map((s) => s.metadata.note ?? 60)
+      .filter((note, index, arr) => arr.indexOf(note) === index); // Unique notes
+
+    // Determine instrument key range (default: A0 to C8, but can be refined)
+    const instrumentLoKey: MidiNote = 21; // A0
+    const instrumentHiKey: MidiNote = 108; // C8
+
+    // Compute key ranges using midpoint algorithm
+    const keyRanges = computeKeyRanges(rootNotes, instrumentLoKey, instrumentHiKey);
+
+    // Compute velocity ranges for velocity-layered samples
+    // Group samples by note to find velocity layers at each pitch
+    const samplesByNote = new Map<number, Sample[]>();
+    for (const sample of samples) {
+      const note = sample.metadata.note ?? 60;
+      const existing = samplesByNote.get(note) || [];
+      existing.push(sample);
+      samplesByNote.set(note, existing);
+    }
+
+    // For each note, compute velocity ranges using midpoint algorithm
+    const velocityRanges = new Map<string, { loVel: number; hiVel: number }>();
+    for (const [note, noteSamples] of samplesByNote) {
+      const velocities = noteSamples
+        .map((s) => s.metadata.velocity ?? 100)
+        .sort((a, b) => a - b);
+
+      // Use midpoint algorithm for velocity ranges
+      for (let i = 0; i < velocities.length; i++) {
+        const vel = velocities[i]!;
+        const prevVel = i > 0 ? velocities[i - 1]! : 0;
+        const nextVel = i < velocities.length - 1 ? velocities[i + 1]! : 127;
+
+        const loVel = i === 0 ? 1 : Math.floor((prevVel + vel) / 2) + 1;
+        const hiVel = i === velocities.length - 1 ? 127 : Math.floor((vel + nextVel) / 2);
+
+        // Store by "note_velocity" key
+        velocityRanges.set(`${note}_${vel}`, { loVel, hiVel });
+      }
+    }
+
+    // Create regions for each sample
+    const samplesWithRanges = samples.map((sample) => {
+      const sampleNote = sample.metadata.note ?? 60;
+      const range = keyRanges.find((r) => r.root === sampleNote);
+
+      // If no exact match, find closest range (shouldn't happen, but defensive)
+      const finalRange = range ?? keyRanges[0] ?? {
+        root: sampleNote,
+        loKey: instrumentLoKey,
+        hiKey: instrumentHiKey,
+      };
+
+      // Check for excessive transposition at range boundaries
+      const maxTransposition = Math.max(
+        Math.abs(calculateTransposition(
+          { pitchKeyCenter: finalRange.root } as MsfRegion,
+          finalRange.loKey
+        )),
+        Math.abs(calculateTransposition(
+          { pitchKeyCenter: finalRange.root } as MsfRegion,
+          finalRange.hiKey
+        ))
+      );
+
+      if (isExcessiveTransposition(maxTransposition, 7)) {
+        warnings.push(
+          `Sample ${sample.id} (note ${sampleNote}) has excessive transposition ` +
+          `at range boundaries (${maxTransposition.toFixed(1)} semitones). ` +
+          `Consider adding more samples to reduce pitch-shifting artifacts.`
+        );
+      }
+
+      // Create region for this sample
+      // Pre-compute base duration in output frames at pitchKeyCenter (playbackRate = 1.0)
+      // Using standard output sample rate of 44100 Hz (runtime default)
+      const outputSampleRate = 44100;
+      const baseDurationFrames = Math.floor(
+        sample.metadata.duration * outputSampleRate
+      );
+
+      // Pre-compute playback data for every note in this region's range
+      // MSF RULE: All pitch and envelope calculations happen at compile time, not runtime
+      const notePlayback: Record<MidiNote, NotePlaybackData> = {};
+
+      // Extract all parameters from articulation (0.0 to 1.0 range)
+      const params = articulation.parameters as Record<string, number> | undefined;
+      const attackParam = params?.attack ?? 0.5;
+      const releaseParam = params?.release ?? 0.5;
+      const brightnessParam = params?.brightness ?? 0.5;
+      const roomParam = params?.room ?? 0.5;
+      const warmthParam = params?.warmth ?? 0.5;
+      const presenceParam = params?.presence ?? 0.5;
+
+      // === ATTACK: Fade-in duration ===
+      // 0% = instant (1ms), 100% = slow (100ms)
+      const fadeInSeconds = 0.001 + attackParam * 0.099;
+
+      // === RELEASE: Fade-out duration ===
+      // 0% = instant (1ms), 100% = long (200ms)
+      const baseReleaseSeconds = 0.001 + releaseParam * 0.199;
+
+      // === ROOM: Adds extra tail to release ===
+      // 0% = no extra tail, 100% = +300ms tail
+      const roomTailSeconds = roomParam * 0.300;
+      const fadeOutSeconds = baseReleaseSeconds + roomTailSeconds;
+
+      // === BRIGHTNESS: Pitch detune in cents ===
+      // 0% = -15 cents (darker), 100% = +15 cents (brighter)
+      // This shifts the entire instrument slightly sharp or flat
+      const brightnessCents = (brightnessParam - 0.5) * 30; // -15 to +15 cents
+
+      // === WARMTH: Pitch + attack modification ===
+      // 0% = +8 cents, fast attack (cold/clinical)
+      // 100% = -8 cents, slower attack (warm/round)
+      const warmthCents = (0.5 - warmthParam) * 16; // +8 to -8 cents
+      const warmthAttackMult = 1.0 + warmthParam * 0.5; // 1.0x to 1.5x attack time
+
+      // Combined pitch adjustment from brightness + warmth
+      const totalCentsAdjust = brightnessCents + warmthCents;
+
+      // === PRESENCE: Gain/dynamics ===
+      // 0% = -6dB (sits back), 100% = 0dB (full presence)
+      // Using linear gain: 0.5 to 1.0
+      const presenceGain = 0.5 + presenceParam * 0.5;
+
+      const baseFadeInFrames = Math.floor(fadeInSeconds * outputSampleRate * warmthAttackMult);
+      const baseFadeOutFrames = Math.floor(fadeOutSeconds * outputSampleRate);
+
+      for (let note = finalRange.loKey; note <= finalRange.hiKey; note++) {
+        // Apply brightness/warmth cents adjustment to playback rate
+        const playbackRate = computePlaybackRate({
+          note: note as MidiNote,
+          pitchKeyCenter: finalRange.root,
+          tuneCents: totalCentsAdjust,
+        });
+        const outputFrames = Math.floor(baseDurationFrames / playbackRate);
+
+        // Scale fade frames by playback rate to maintain consistent fade TIME
+        const fadeInFrames = Math.floor(baseFadeInFrames / playbackRate);
+        const fadeOutFrames = Math.floor(baseFadeOutFrames / playbackRate);
+
+        notePlayback[note] = {
+          playbackRate,
+          outputFrames,
+          fadeInFrames,
+          fadeOutFrames,
+          gain: presenceGain,
+        };
+      }
+
+      // Get velocity range for this sample
+      const sampleVel = sample.metadata.velocity ?? 100;
+      const velRange = velocityRanges.get(`${sampleNote}_${sampleVel}`) || { loVel: 1, hiVel: 127 };
+
+      const region: MsfRegion = {
+        id: `region_${sample.id}`,
+        sampleId: sample.id,
+        loKey: finalRange.loKey,
+        hiKey: finalRange.hiKey,
+        pitchKeyCenter: finalRange.root,
+        loVel: velRange.loVel,
+        hiVel: velRange.hiVel,
+        articulationId: articulation.id,
+        sampleSetId,
+        baseDurationFrames, // Kept for backward compatibility during transition
+        notePlayback,
+      };
+
+      regions.push(region);
+
+      return {
         id: sample.id,
         path: sample.path,
         note: sample.metadata.note,
         velocity: sample.metadata.velocity,
         articulation: articulation.id,
+        lokey: finalRange.loKey,
+        hikey: finalRange.hiKey,
+        pitch_keycenter: finalRange.root,
         metadata: {
           duration: sample.metadata.duration,
           sampleRate: sample.metadata.sampleRate,
           channels: sample.metadata.channels,
           format: sample.metadata.format,
         },
-      })),
+      };
+    });
+
+    decisions.push({
+      type: "regionsComputed",
+      reason: `Computed ${regions.length} regions for articulation ${articulation.id}`,
+      context: {
+        articulationId: articulation.id,
+        regionCount: regions.length,
+        rootNotes: rootNotes.length,
+      },
+    });
+
+    sampleSets.push({
+      id: sampleSetId,
+      samples: samplesWithRanges,
       roundRobin: hasRoundRobin
         ? {
             strategy: "random",
@@ -294,6 +496,15 @@ export async function compile(
     errors,
   };
 
+  // Build pre-computed note lookup table for O(1) region selection
+  const noteLookup = buildNoteLookup(regions, sampleSets);
+
+  decisions.push({
+    type: "noteLookupBuilt",
+    reason: `Built note lookup table for 128 MIDI notes`,
+    context: { notes: 128 },
+  });
+
   const instrument: MSFInstrument = {
     identity: {
       id: `instrument_${intent.intent.name.toLowerCase().replace(/\s+/g, "_")}_${seed}`,
@@ -303,6 +514,8 @@ export async function compile(
     },
     articulations,
     sampleSets,
+    regions,
+    noteLookup,
     mapping: {
       keyZones,
       velocityZones,
@@ -324,7 +537,50 @@ export async function compile(
 }
 
 /**
- * Inventory interface (to be defined by @msf/inventory package)
+ * Build a pre-computed note lookup table.
+ * Maps every MIDI note (0-127) to its velocity layers and region indices.
+ */
+function buildNoteLookup(
+  regions: MsfRegion[],
+  sampleSets: MSFInstrument["sampleSets"]
+): NoteLookup {
+  // Build sample path index
+  const samplePaths = new Map<string, string>();
+  for (const set of sampleSets) {
+    for (const sample of set.samples) {
+      samplePaths.set(sample.id, sample.path);
+    }
+  }
+
+  // Initialize table with 128 empty arrays (one per MIDI note)
+  const table: NoteLookupEntry[][] = Array.from({ length: 128 }, () => []);
+
+  // Populate table from regions
+  for (let regionIndex = 0; regionIndex < regions.length; regionIndex++) {
+    const region = regions[regionIndex]!;
+    const samplePath = samplePaths.get(region.sampleId) || "";
+
+    // Add entry for each note this region covers
+    for (let note = region.loKey; note <= region.hiKey; note++) {
+      table[note]!.push({
+        velocityMin: region.loVel ?? 1,
+        regionIndex,
+        samplePath,
+      });
+    }
+  }
+
+  // Sort each note's velocity layers by velocityMin (ascending)
+  // This allows binary search or simple iteration at runtime
+  for (const layers of table) {
+    layers.sort((a, b) => a.velocityMin - b.velocityMin);
+  }
+
+  return { table };
+}
+
+/**
+ * Inventory interface (to be defined by @msf/builder package)
  */
 export interface Inventory {
   getSample(id: string): Sample | undefined;
@@ -342,6 +598,90 @@ export interface Sample {
     sampleRate: number;
     channels: number;
     format: string;
+  };
+}
+
+/**
+ * Extract an Inventory interface from a compiled MSF instrument.
+ * Useful for recompilation workflows.
+ */
+export function extractInventoryFromMSF(msf: MSFInstrument): Inventory {
+  const entries = new Map<string, Sample>();
+
+  for (const sampleSet of msf.sampleSets) {
+    for (const sample of sampleSet.samples) {
+      entries.set(sample.id, {
+        id: sample.id,
+        path: sample.path,
+        metadata: {
+          note: sample.note,
+          velocity: sample.velocity,
+          articulation: sample.articulation,
+          duration: sample.metadata.duration,
+          sampleRate: sample.metadata.sampleRate,
+          channels: sample.metadata.channels,
+          format: sample.metadata.format,
+        },
+      });
+    }
+  }
+
+  return {
+    getSample: (id: string) => entries.get(id),
+    listSamples: () => Array.from(entries.values()),
+  };
+}
+
+/**
+ * Extract an InstrumentIntent from a compiled MSF instrument.
+ * Useful for recompilation with modified parameters.
+ */
+export function extractIntentFromMSF(
+  msf: MSFInstrument,
+  paramOverrides?: Record<string, number>
+): InstrumentIntent {
+  const inventoryReferences = msf.sampleSets.flatMap((set) =>
+    set.samples.map((sample) => ({
+      id: sample.id,
+      role: "primary" as const,
+      constraints: {
+        noteRange: sample.note
+          ? ([sample.note, sample.note] as [number, number])
+          : undefined,
+        velocityRange: sample.velocity
+          ? ([sample.velocity, sample.velocity] as [number, number])
+          : undefined,
+      },
+    }))
+  );
+
+  const articulations = msf.articulations.map((art) => ({
+    id: art.id,
+    name: art.name,
+    type: art.type,
+    samples: msf.sampleSets
+      .filter((set) => set.samples.some((s) => s.articulation === art.id))
+      .flatMap((set) => set.samples.map((s) => s.id)),
+    parameters: { ...art.parameters, ...(paramOverrides || {}) },
+  }));
+
+  return {
+    intent: {
+      name: msf.identity.name,
+      description: msf.identity.description,
+      instrumentType: "piano",
+      targetArticulations: msf.articulations.map((a) => a.name),
+    },
+    inventoryReferences,
+    articulations,
+    mapping: {
+      strategy:
+        msf.mapping.velocityZones.length > 0 ? "velocityLayered" : "chromatic",
+      zones: msf.mapping.velocityZones.map((zone) => ({
+        velocityRange: zone.range,
+        sampleSetIds: [zone.sampleSetId],
+      })),
+    },
   };
 }
 
